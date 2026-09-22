@@ -13,12 +13,15 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/businesses", businessRoutes);
 
-// Test Route
+// Frontend Dashboard
+const path = require("path");
+
+app.use(express.static(path.join(__dirname, "..")));
+
 app.get("/", (req, res) => {
-    res.json({
-        success: true,
-        message: "AI Business Risk System Backend is running!"
-    });
+    res.sendFile(
+        path.join(__dirname, "..", "dashboard.html")
+    );
 });
 
 // Health Check
