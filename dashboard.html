@@ -4543,7 +4543,7 @@ let voiceRecognition = null;
 
 function speakAIAnswer(text) {
 
-    if (!text) {
+    if (!text || !text.trim()) {
         return;
     }
 
@@ -4556,16 +4556,127 @@ function speakAIAnswer(text) {
         return;
     }
 
+    // Stop previous speech
     window.speechSynthesis.cancel();
 
-    const speech =
-        new SpeechSynthesisUtterance(text);
+    function speakNow() {
 
-    speech.lang = "en-IN";
-    speech.rate = 1;
-    speech.pitch = 1;
+        const speech =
+            new SpeechSynthesisUtterance(text);
 
-    window.speechSynthesis.speak(speech);
+        speech.lang = "en-IN";
+        speech.rate = 1;
+        speech.pitch = 1;
+        speech.volume = 1;
+
+        const voices =
+            window.speechSynthesis.getVoices();
+
+        // Prefer Indian English voice
+        const indianVoice =
+            voices.find(function(voice) {
+                return voice.lang === "en-IN";
+            });
+
+        // Otherwise use any English voice
+        const englishVoice =
+            voices.find(function(voice) {
+                return voice.lang &&
+                       voice.lang.toLowerCase()
+                           .startsWith("en");
+            });
+
+        if (indianVoice) {
+
+            speech.voice =
+                indianVoice;
+
+        }
+        else if (englishVoice) {
+
+            speech.voice =
+                englishVoice;
+
+        }
+
+        speech.onstart =
+            function() {
+
+                const status =
+                    document.getElementById(
+                        "voiceAiStatus"
+                    );
+
+                if (status) {
+
+                    status.textContent =
+                        "🔊 AI is speaking...";
+
+                }
+            };
+
+        speech.onend =
+            function() {
+
+                const status =
+                    document.getElementById(
+                        "voiceAiStatus"
+                    );
+
+                if (status) {
+
+                    status.textContent =
+                        "✅ Ready for your next question.";
+
+                }
+            };
+
+        speech.onerror =
+            function(error) {
+
+                console.error(
+                    "Speech Error:",
+                    error
+                );
+
+                const status =
+                    document.getElementById(
+                        "voiceAiStatus"
+                    );
+
+                if (status) {
+
+                    status.textContent =
+                        "❌ Voice output failed. Please check browser sound.";
+
+                }
+            };
+
+        window.speechSynthesis.speak(
+            speech
+        );
+    }
+
+    const voices =
+        window.speechSynthesis.getVoices();
+
+    if (voices.length > 0) {
+
+        speakNow();
+
+    }
+    else {
+
+        window.speechSynthesis.onvoiceschanged =
+            function() {
+
+                window.speechSynthesis
+                    .onvoiceschanged = null;
+
+                speakNow();
+
+            };
+    }
 }
 
 
@@ -4825,36 +4936,92 @@ if ("speechSynthesis" in window) {
 
     window.speechSynthesis.cancel();
 
-    const speech =
-        new SpeechSynthesisUtterance(answer);
+    const speakAnswer = function () {
 
-    speech.lang = "en-IN";
-    speech.rate = 1;
-    speech.pitch = 1;
-    speech.volume = 1;
+        const speech =
+            new SpeechSynthesisUtterance(answer);
 
-    speech.onend = function () {
+        speech.lang = "en-IN";
+        speech.rate = 1;
+        speech.pitch = 1;
+        speech.volume = 1;
 
-        status.textContent =
-            "✅ Ready for your next question.";
+        const voices =
+            window.speechSynthesis.getVoices();
 
-    };
+        const indianVoice =
+            voices.find(function (voice) {
+                return voice.lang === "en-IN";
+            });
 
-    speech.onerror = function (error) {
+        const englishVoice =
+            voices.find(function (voice) {
+                return voice.lang &&
+                       voice.lang
+                           .toLowerCase()
+                           .startsWith("en");
+            });
 
-        console.error(
-            "Speech Error:",
-            error
+        if (indianVoice) {
+            speech.voice = indianVoice;
+        }
+        else if (englishVoice) {
+            speech.voice = englishVoice;
+        }
+
+        speech.onstart = function () {
+
+            status.textContent =
+                "🔊 AI is speaking...";
+
+        };
+
+        speech.onend = function () {
+
+            status.textContent =
+                "✅ Ready for your next question.";
+
+        };
+
+        speech.onerror = function (error) {
+
+            console.error(
+                "Speech Error:",
+                error
+            );
+
+            status.textContent =
+                "❌ Voice output failed. Please check browser sound.";
+
+        };
+
+        window.speechSynthesis.speak(
+            speech
         );
-
-        status.textContent =
-            "❌ Voice output failed. Please check browser sound.";
-
     };
 
-    window.speechSynthesis.speak(speech);
+    const voices =
+        window.speechSynthesis.getVoices();
 
-} else {
+    if (voices.length > 0) {
+
+        speakAnswer();
+
+    }
+    else {
+
+        window.speechSynthesis.onvoiceschanged =
+            function () {
+
+                window.speechSynthesis
+                    .onvoiceschanged = null;
+
+                speakAnswer();
+            };
+    }
+
+}
+else {
 
     status.textContent =
         "❌ Your browser does not support voice output.";
