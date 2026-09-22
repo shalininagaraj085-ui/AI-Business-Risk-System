@@ -4,8 +4,8 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-const authRoutes = require("./routes/authRoutes");
-const businessRoutes = require("./routes/businessRoutes");
+const authRoutes = require("./authRoutes");
+const businessRoutes = require("./businessRoutes");
 
 // Middleware
 app.use(cors());
