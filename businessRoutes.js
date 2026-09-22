@@ -77,34 +77,35 @@ router.post("/:id/copilot", async (req, res) => {
 
 });
 
-
 // =====================================================
-// UNIVERSAL AI BUSINESS COPILOT RESPONSE ENGINE
+// SMART UNIVERSAL AI BUSINESS COPILOT
 // =====================================================
 
 function generateCopilotAnswer(question, business) {
 
-    const q = String(question || "")
-        .toLowerCase()
-        .replace(/[?!.,'"]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
+    const originalQuestion =
+        String(question || "").trim();
+
+    const q =
+        originalQuestion
+            .toLowerCase()
+            .replace(/[?!.,'"]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
 
     // =================================================
     // BUSINESS DATA
     // =================================================
 
     const businessName =
-        business.businessName ||
-        "Selected Business";
+        business.businessName || "Selected Business";
 
     const category =
-        business.category ||
-        "Not available";
+        business.category || "Not available";
 
     const location =
-        business.location ||
-        "Not available";
+        business.location || "Not available";
 
     const revenue =
         Number(business.monthlyRevenue || 0);
@@ -129,8 +130,7 @@ function generateCopilotAnswer(question, business) {
         Number(business.overallRiskScore || 0);
 
     const riskLevel =
-        business.riskLevel ||
-        "Not analyzed";
+        business.riskLevel || "Not analyzed";
 
     const prediction =
         business.aiPrediction ||
@@ -146,12 +146,12 @@ function generateCopilotAnswer(question, business) {
     if (revenue <= 0) {
 
         financialStatus =
-            "Financial condition cannot be evaluated because valid revenue data is unavailable.";
+            "Valid revenue data is not available.";
 
     } else if (expenses > revenue) {
 
         financialStatus =
-            "The business is currently operating with an estimated loss because expenses are higher than revenue.";
+            "Expenses are higher than revenue, resulting in an estimated loss.";
 
     } else if (expenseRatio >= 80) {
 
@@ -161,184 +161,117 @@ function generateCopilotAnswer(question, business) {
     } else if (expenseRatio >= 60) {
 
         financialStatus =
-            "The business is currently profitable, but expenses require regular monitoring.";
+            "The business is profitable, but expenses require regular monitoring.";
 
     } else {
 
         financialStatus =
-            "The business currently has a positive financial gap between revenue and expenses.";
+            "Revenue is currently higher than expenses, producing a positive estimated profit.";
 
     }
 
 
     // =================================================
-    // RISK EXPLANATION
-    // =================================================
-
-    let riskExplanation;
-
-    if (riskScore >= 75) {
-
-        riskExplanation =
-            "The current risk level is critical and requires immediate attention.";
-
-    } else if (riskScore >= 50) {
-
-        riskExplanation =
-            "The current risk level is high and corrective action should be considered.";
-
-    } else if (riskScore >= 25) {
-
-        riskExplanation =
-            "The business has some risk indicators that require attention.";
-
-    } else {
-
-        riskExplanation =
-            "The latest analyzed data indicates relatively low immediate financial risk.";
-
-    }
-
-
-    // =================================================
-    // 1. ERROR / PROBLEM / ISSUE QUESTIONS
+    // 1. GREETING
     // =================================================
 
     if (
-        q.includes("error") ||
-        q.includes("errors") ||
-        q.includes("problem") ||
-        q.includes("problems") ||
-        q.includes("issue") ||
-        q.includes("issues") ||
-        q.includes("wrong") ||
-        q.includes("what is wrong") ||
-        q.includes("what went wrong") ||
-        q.includes("what is the problem")
+        /^(hi|hello|hey|good morning|good afternoon|good evening)$/.test(q)
     ) {
 
-        let problem;
-
-        if (revenue <= 0) {
-
-            problem =
-                "The main issue is that valid revenue data is not available.";
-
-        } else if (expenses > revenue) {
-
-            problem =
-                "The main financial problem is that expenses are higher than revenue, producing an estimated loss.";
-
-        } else if (expenseRatio >= 80) {
-
-            problem =
-                "The main concern is the high expense ratio. Expenses are consuming a large portion of revenue.";
-
-        } else if (expenseRatio >= 60) {
-
-            problem =
-                "There is no critical financial problem in the current data, but operating expenses require regular monitoring.";
-
-        } else {
-
-            problem =
-                "No major financial problem is visible from the currently saved revenue and expense data.";
-
-        }
-
         return `
-🚨 Business Problem / Error Analysis
+👋 Hello!
 
-Business:
+I am your AI Business Assistant.
+
+Selected Business:
 ${businessName}
 
-Category:
+I can help you understand:
+
+• Current financial condition
+• Revenue
+• Expenses
+• Profit
+• Risk
+• Future risk
+• Business problems
+• Reasons behind risk
+• Recommendations
+• Business information
+
+Ask me any question about ${businessName}.
+        `.trim();
+    }
+
+
+    // =================================================
+    // 2. EXACT BUSINESS NAME
+    // =================================================
+
+    if (
+        q === "what is the business name" ||
+        q === "business name" ||
+        q === "name of business" ||
+        q === "what business is this"
+    ) {
+
+        return `
+🏢 Business Name
+
+${businessName}
+        `.trim();
+    }
+
+
+    // =================================================
+    // 3. CATEGORY
+    // =================================================
+
+    if (
+        q === "category" ||
+        q === "business category" ||
+        q === "what is the category" ||
+        q === "what type of business is this"
+    ) {
+
+        return `
+📂 Business Category
+
 ${category}
-
-Location:
-${location}
-
-Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Estimated Profit:
-₹${profit.toLocaleString("en-IN")}
-
-Current Risk:
-${riskScore} — ${riskLevel}
-
-Detected Problem:
-${problem}
-
-AI Assessment:
-${financialStatus}
-
-AI Prediction:
-${prediction}
         `.trim();
     }
 
 
     // =================================================
-    // 2. RISK QUESTIONS
+    // 4. LOCATION
     // =================================================
 
     if (
-        q.includes("risk") ||
-        q.includes("danger") ||
-        q.includes("risky") ||
-        q.includes("risk level") ||
-        q.includes("risk score") ||
-        q.includes("how risky")
+        q === "location" ||
+        q === "business location" ||
+        q === "where is the business" ||
+        q === "where is this business located"
     ) {
 
         return `
-⚠️ Current Business Risk
+📍 Business Location
 
-Business:
-${businessName}
-
-Current Risk Score:
-${riskScore}
-
-Current Risk Level:
-${riskLevel}
-
-Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Estimated Profit:
-₹${profit.toLocaleString("en-IN")}
-
-Expense Ratio:
-${expenseRatio.toFixed(2)}%
-
-AI Assessment:
-${riskExplanation}
-
-AI Prediction:
-${prediction}
+${location}
         `.trim();
     }
 
 
     // =================================================
-    // 3. REVENUE QUESTIONS
+    // 5. REVENUE
     // =================================================
 
     if (
+        q.includes("monthly revenue") ||
         q.includes("revenue") ||
         q.includes("income") ||
-        q.includes("earning") ||
         q.includes("earnings") ||
-        q.includes("sales") ||
-        q.includes("money")
+        q === "how much does the business earn"
     ) {
 
         return `
@@ -359,25 +292,21 @@ Estimated Monthly Profit:
 Profit Margin:
 ${profitMargin.toFixed(2)}%
 
-AI Assessment:
-${financialStatus}
-
-The revenue value shown here comes from the latest saved business data.
+The revenue shown here comes from the latest saved business data.
         `.trim();
     }
 
 
     // =================================================
-    // 4. EXPENSE QUESTIONS
+    // 6. EXPENSES
     // =================================================
 
     if (
-        q.includes("expense") ||
+        q.includes("monthly expense") ||
         q.includes("expenses") ||
+        q.includes("expense") ||
         q.includes("cost") ||
-        q.includes("costs") ||
-        q.includes("spending") ||
-        q.includes("spend")
+        q.includes("spending")
     ) {
 
         return `
@@ -386,11 +315,11 @@ The revenue value shown here comes from the latest saved business data.
 Business:
 ${businessName}
 
-Monthly Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
 Monthly Expenses:
 ₹${expenses.toLocaleString("en-IN")}
+
+Monthly Revenue:
+₹${revenue.toLocaleString("en-IN")}
 
 Expense Ratio:
 ${expenseRatio.toFixed(2)}%
@@ -398,42 +327,38 @@ ${expenseRatio.toFixed(2)}%
 Estimated Profit:
 ₹${profit.toLocaleString("en-IN")}
 
-AI Assessment:
+Assessment:
 ${financialStatus}
-
-Recommendation:
-Monitor unnecessary expenses and maintain a healthy gap between revenue and expenses.
         `.trim();
     }
 
 
     // =================================================
-    // 5. PROFIT / LOSS QUESTIONS
+    // 7. PROFIT
     // =================================================
 
     if (
         q.includes("profit") ||
-        q.includes("loss") ||
-        q.includes("profitable") ||
         q.includes("profitability") ||
-        q.includes("margin")
+        q.includes("profit margin") ||
+        q.includes("loss")
     ) {
 
-        let profitStatus;
+        let status;
 
         if (profit > 0) {
 
-            profitStatus =
+            status =
                 "The business currently has a positive estimated monthly profit.";
 
         } else if (profit < 0) {
 
-            profitStatus =
+            status =
                 "The business currently has an estimated monthly loss.";
 
         } else {
 
-            profitStatus =
+            status =
                 "Revenue and expenses are currently equal.";
 
         }
@@ -456,16 +381,199 @@ Estimated Profit:
 Profit Margin:
 ${profitMargin.toFixed(2)}%
 
-${profitStatus}
+Status:
+${status}
+        `.trim();
+    }
 
-AI Risk:
+
+    // =================================================
+    // 8. RISK SCORE ONLY
+    // =================================================
+
+    if (
+        q.includes("risk score") ||
+        q === "risk"
+    ) {
+
+        return `
+⚠️ Current Risk
+
+Business:
+${businessName}
+
+Risk Score:
+${riskScore}
+
+Risk Level:
+${riskLevel}
+
+The risk score is based on the latest analyzed business data.
+        `.trim();
+    }
+
+
+    // =================================================
+    // 9. RISK LEVEL
+    // =================================================
+
+    if (
+        q.includes("risk level") ||
+        q.includes("how risky") ||
+        q.includes("is this business risky")
+    ) {
+
+        return `
+⚠️ Risk Level
+
+Business:
+${businessName}
+
+Current Risk Level:
+${riskLevel}
+
+Risk Score:
+${riskScore}
+
+AI Assessment:
+${getRiskExplanation(riskScore)}
+        `.trim();
+    }
+
+
+    // =================================================
+    // 10. PROBLEM / ERROR
+    // =================================================
+
+    if (
+        q.includes("problem") ||
+        q.includes("problems") ||
+        q.includes("issue") ||
+        q.includes("issues") ||
+        q.includes("error") ||
+        q.includes("what is wrong") ||
+        q.includes("what went wrong")
+    ) {
+
+        let problem;
+
+        if (revenue <= 0) {
+
+            problem =
+                "Valid revenue data is not available.";
+
+        } else if (expenses > revenue) {
+
+            problem =
+                "Expenses are higher than revenue, creating an estimated loss.";
+
+        } else if (expenseRatio >= 80) {
+
+            problem =
+                "Expenses are consuming a very high portion of revenue.";
+
+        } else if (expenseRatio >= 60) {
+
+            problem =
+                "Operating expenses are relatively high and should be monitored.";
+
+        } else {
+
+            problem =
+                "No major financial problem is visible from the current saved data.";
+
+        }
+
+        return `
+🚨 Business Problem Analysis
+
+Business:
+${businessName}
+
+Detected Problem:
+${problem}
+
+Revenue:
+₹${revenue.toLocaleString("en-IN")}
+
+Expenses:
+₹${expenses.toLocaleString("en-IN")}
+
+Estimated Profit:
+₹${profit.toLocaleString("en-IN")}
+
+Current Risk:
 ${riskScore} — ${riskLevel}
         `.trim();
     }
 
 
     // =================================================
-    // 6. FUTURE / PREDICTION QUESTIONS
+    // 11. WHY / REASON
+    // =================================================
+
+    if (
+        q.includes("why") ||
+        q.includes("reason") ||
+        q.includes("because") ||
+        q.includes("explain")
+    ) {
+
+        let reason;
+
+        if (revenue <= 0) {
+
+            reason =
+                "Revenue data is unavailable, so the financial condition cannot be evaluated reliably.";
+
+        } else if (expenses > revenue) {
+
+            reason =
+                "Expenses are higher than revenue, creating an estimated loss.";
+
+        } else if (expenseRatio >= 80) {
+
+            reason =
+                "Expenses consume a large portion of revenue, reducing the available profit margin.";
+
+        } else if (expenseRatio >= 60) {
+
+            reason =
+                "Expenses represent a significant portion of revenue.";
+
+        } else {
+
+            reason =
+                "Revenue is currently higher than expenses, resulting in a positive estimated profit.";
+
+        }
+
+        return `
+🧠 AI Explanation
+
+Business:
+${businessName}
+
+Why:
+${reason}
+
+Revenue:
+₹${revenue.toLocaleString("en-IN")}
+
+Expenses:
+₹${expenses.toLocaleString("en-IN")}
+
+Profit:
+₹${profit.toLocaleString("en-IN")}
+
+Risk:
+${riskScore} — ${riskLevel}
+        `.trim();
+    }
+
+
+    // =================================================
+    // 12. FUTURE / PREDICTION
     // =================================================
 
     if (
@@ -473,10 +581,8 @@ ${riskScore} — ${riskLevel}
         q.includes("predict") ||
         q.includes("prediction") ||
         q.includes("next month") ||
-        q.includes("later") ||
         q.includes("upcoming") ||
-        q.includes("what will happen") ||
-        q.includes("what happens")
+        q.includes("what will happen")
     ) {
 
         return `
@@ -503,95 +609,23 @@ Current Profit:
 AI Future Prediction:
 ${prediction}
 
-This is an AI-based indication using the currently saved business data. It is not a guaranteed future result.
+This is an AI-based prediction using the currently saved business data. It is not a guaranteed future result.
         `.trim();
     }
 
 
     // =================================================
-    // 7. WHY / EXPLANATION QUESTIONS
-    // =================================================
-
-    if (
-        q.includes("why") ||
-        q.includes("reason") ||
-        q.includes("because") ||
-        q.includes("explain") ||
-        q.includes("how did") ||
-        q.includes("how is")
-    ) {
-
-        let reason;
-
-        if (revenue <= 0) {
-
-            reason =
-                "Revenue data is unavailable, so the financial condition cannot be evaluated reliably.";
-
-        } else if (expenses > revenue) {
-
-            reason =
-                "Expenses are higher than revenue, which creates an estimated loss and increases financial pressure.";
-
-        } else if (expenseRatio >= 80) {
-
-            reason =
-                "Expenses consume a very large portion of revenue, reducing the available profit margin.";
-
-        } else if (expenseRatio >= 60) {
-
-            reason =
-                "Expenses represent a significant portion of revenue, so they should be monitored.";
-
-        } else {
-
-            reason =
-                "Revenue is currently higher than expenses, resulting in a positive estimated profit.";
-
-        }
-
-        return `
-🧠 AI Explanation
-
-Business:
-${businessName}
-
-Current Risk:
-${riskScore} — ${riskLevel}
-
-Why:
-${reason}
-
-Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Estimated Profit:
-₹${profit.toLocaleString("en-IN")}
-
-AI Prediction:
-${prediction}
-        `.trim();
-    }
-
-
-    // =================================================
-    // 8. RECOMMENDATION / ACTION QUESTIONS
+    // 13. RECOMMENDATION
     // =================================================
 
     if (
         q.includes("recommend") ||
-        q.includes("recommendation") ||
         q.includes("suggest") ||
         q.includes("advice") ||
-        q.includes("what should") ||
-        q.includes("what can i do") ||
+        q.includes("what should i do") ||
+        q.includes("what should we do") ||
         q.includes("how can i improve") ||
-        q.includes("how can we improve") ||
-        q.includes("what action") ||
-        q.includes("actions")
+        q.includes("what action")
     ) {
 
         let recommendation;
@@ -599,7 +633,7 @@ ${prediction}
         if (revenue <= 0) {
 
             recommendation =
-                "Maintain valid revenue data first so the AI can monitor the financial condition correctly.";
+                "Enter valid revenue data so the AI can monitor the financial condition correctly.";
 
         } else if (expenses > revenue) {
 
@@ -619,7 +653,7 @@ ${prediction}
         } else {
 
             recommendation =
-                "Continue monitoring revenue and expenses and maintain the current healthy financial gap.";
+                "Continue monitoring revenue and expenses and maintain the current financial gap.";
 
         }
 
@@ -629,82 +663,35 @@ ${prediction}
 Business:
 ${businessName}
 
-Current Risk:
-${riskScore} — ${riskLevel}
-
 Recommended Action:
 ${recommendation}
 
-Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Estimated Profit:
-₹${profit.toLocaleString("en-IN")}
-
-AI Prediction:
-${prediction}
-        `.trim();
-    }
-
-
-    // =================================================
-    // 9. BUSINESS INFORMATION QUESTIONS
-    // =================================================
-
-    if (
-        q.includes("name") ||
-        q.includes("business") ||
-        q.includes("category") ||
-        q.includes("type") ||
-        q.includes("location") ||
-        q.includes("where") ||
-        q.includes("which business")
-    ) {
-
-        return `
-🏢 Selected Business Information
-
-Business Name:
-${businessName}
-
-Category:
-${category}
-
-Location:
-${location}
-
-Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Estimated Profit:
-₹${profit.toLocaleString("en-IN")}
-
 Current Risk:
 ${riskScore} — ${riskLevel}
 
-AI Prediction:
-${prediction}
+Revenue:
+₹${revenue.toLocaleString("en-IN")}
+
+Expenses:
+₹${expenses.toLocaleString("en-IN")}
+
+Estimated Profit:
+₹${profit.toLocaleString("en-IN")}
         `.trim();
     }
 
 
     // =================================================
-    // 10. FINANCIAL CONDITION / HEALTH
+    // 14. FINANCIAL CONDITION
     // =================================================
 
     if (
-        q.includes("financial") ||
-        q.includes("condition") ||
-        q.includes("health") ||
-        q.includes("performance") ||
-        q.includes("doing") ||
-        q.includes("healthy")
+        q.includes("financial condition") ||
+        q.includes("financial health") ||
+        q.includes("business health") ||
+        q.includes("overall condition") ||
+        q.includes("how is the business doing") ||
+        q.includes("business performance")
     ) {
 
         return `
@@ -728,7 +715,7 @@ ${expenseRatio.toFixed(2)}%
 Profit Margin:
 ${profitMargin.toFixed(2)}%
 
-Current Risk:
+Risk:
 ${riskScore} — ${riskLevel}
 
 AI Assessment:
@@ -741,18 +728,18 @@ ${prediction}
 
 
     // =================================================
-    // 11. SUMMARY / ALL DETAILS
+    // 15. SUMMARY
     // =================================================
 
     if (
         q.includes("summary") ||
         q.includes("summarize") ||
-        q.includes("everything") ||
+        q.includes("overview") ||
+        q.includes("complete details") ||
         q.includes("all details") ||
-        q.includes("complete") ||
-        q.includes("tell me about") ||
-        q.includes("about this business") ||
-        q.includes("overview")
+        q.includes("everything") ||
+        q.includes("tell me about this business") ||
+        q.includes("about this business")
     ) {
 
         return `
@@ -795,78 +782,67 @@ ${financialStatus}
 
 
     // =================================================
-    // 12. GENERAL / UNKNOWN QUESTION
+    // 16. UNKNOWN QUESTION
     // =================================================
-    // Do NOT return a useless fixed "try asking..." answer.
-    // Give the best available business assessment.
-
-    let generalAnswer;
-
-    if (revenue <= 0) {
-
-        generalAnswer =
-            "The question cannot be fully evaluated because valid revenue data is not available.";
-
-    } else if (expenses > revenue) {
-
-        generalAnswer =
-            "The main concern visible in the current data is that expenses are higher than revenue.";
-
-    } else if (expenseRatio >= 80) {
-
-        generalAnswer =
-            "The business is profitable, but the high expense ratio is the main financial concern.";
-
-    } else if (expenseRatio >= 60) {
-
-        generalAnswer =
-            "The business is currently profitable, while expenses should continue to be monitored.";
-
-    } else {
-
-        generalAnswer =
-            "The current saved data shows revenue higher than expenses and a positive estimated profit.";
-
-    }
-
+    // Instead of giving the same generic answer,
+    // clearly tell the user that this exact question
+    // is outside the currently available business data.
 
     return `
 🤖 AI Business Assistant
 
-I analyzed your question using the latest saved data for the selected business.
-
 Your Question:
-${question}
+${originalQuestion}
 
-Business:
+I can currently analyze this selected business using its saved data.
+
+Available information:
+• Business Name
+• Category
+• Location
+• Revenue
+• Expenses
+• Estimated Profit
+• Profit Margin
+• Current Risk
+• Risk Level
+• Future Risk Prediction
+• Business Problems
+• AI Recommendations
+
+For questions outside these areas, additional business data or a dedicated AI model would be required.
+
+Selected Business:
 ${businessName}
-
-Category:
-${category}
-
-Location:
-${location}
-
-Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Estimated Profit:
-₹${profit.toLocaleString("en-IN")}
-
-Current Risk:
-${riskScore} — ${riskLevel}
-
-AI Prediction:
-${prediction}
-
-AI Assessment:
-${generalAnswer}
-
-The available business data can be used to evaluate financial condition, revenue, expenses, profit, risk, future risk, problems, reasons and recommended actions.
     `.trim();
+}
+
+
+// =====================================================
+// RISK EXPLANATION HELPER
+// =====================================================
+
+function getRiskExplanation(score) {
+
+    if (score >= 75) {
+
+        return "The current analyzed data indicates a critical risk level.";
+
+    }
+
+    if (score >= 50) {
+
+        return "The current analyzed data indicates a high risk level.";
+
+    }
+
+    if (score >= 25) {
+
+        return "The current analyzed data indicates a medium risk level.";
+
+    }
+
+    return "The current analyzed data indicates a relatively low immediate risk level.";
 }
 
 // =====================================================
