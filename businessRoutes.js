@@ -4,7 +4,9 @@ const Business = require("./businessModel");
 
 const router = express.Router();
 
-const AI_API_URL = "http://127.0.0.1:8000/api/risk/analyze";
+const AI_API_URL =
+    process.env.AI_API_URL ||
+    "http://127.0.0.1:8000/api/risk/analyze";
 
 // =====================================================
 // AI BUSINESS COPILOT
