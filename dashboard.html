@@ -4819,22 +4819,47 @@ async function sendVoiceAiQuestion() {
         `;
 
 
+        status.textContent = "🔊 AI is speaking...";
+
+if ("speechSynthesis" in window) {
+
+    window.speechSynthesis.cancel();
+
+    const speech =
+        new SpeechSynthesisUtterance(answer);
+
+    speech.lang = "en-IN";
+    speech.rate = 1;
+    speech.pitch = 1;
+    speech.volume = 1;
+
+    speech.onend = function () {
+
         status.textContent =
-            "🔊 AI is speaking...";
+            "✅ Ready for your next question.";
 
+    };
 
-        speakAIAnswer(answer);
+    speech.onerror = function (error) {
 
-
-        setTimeout(
-            function() {
-
-                status.textContent =
-                    "✅ Ready for your next question.";
-
-            },
-            1500
+        console.error(
+            "Speech Error:",
+            error
         );
+
+        status.textContent =
+            "❌ Voice output failed. Please check browser sound.";
+
+    };
+
+    window.speechSynthesis.speak(speech);
+
+} else {
+
+    status.textContent =
+        "❌ Your browser does not support voice output.";
+
+}
 
 
     }
