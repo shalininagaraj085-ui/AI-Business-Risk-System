@@ -1,0 +1,4899 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Business Risk System</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: auto;
+            padding: 30px 0;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        .business-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .business-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .info-box {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .button {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+            font-size: 15px;
+            margin-top: 20px;
+        }
+
+        .button:hover {
+            background: #1d4ed8;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-top: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .card-title {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .card-value {
+            font-size: 27px;
+            font-weight: bold;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            margin-top: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .section h2 {
+            margin-top: 0;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            line-height: 1.7;
+        }
+
+        .warning {
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+        }
+
+        .risk-card {
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+
+        .simulation-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .copilot-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .copilot-input input {
+            flex: 1;
+            padding: 13px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .copilot-input button {
+            margin-top: 0;
+        }
+
+        /* RISK HEATMAP */
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .heatmap-card {
+            padding: 20px;
+            border-radius: 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .heatmap-card h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .heatmap-value {
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            background: #dcfce7;
+            color: #166534;
+            transition: 0.3s ease;
+        }
+
+        .risk-low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .risk-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .risk-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .risk-critical {
+            background: #7f1d1d;
+            color: #ffffff;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .critical {
+            background: #7f1d1d;
+            color: white;
+        }
+
+        .loading {
+            color: #2563eb;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        /* BUSINESS MANAGER */
+
+        .business-manager {
+            margin-top: 20px;
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+        }
+
+        .business-search-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .business-search-grid input,
+        .business-search-grid select,
+        .add-business-grid input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .business-results {
+            display: grid;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .business-result {
+            padding: 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: #f9fafb;
+            cursor: pointer;
+        }
+
+        .business-result:hover {
+            border-color: #2563eb;
+        }
+
+        /*
+           ONLY 5 ADD BUSINESS FIELDS
+        */
+
+        .add-business-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .live-status {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            background: #ecfdf5;
+            color: #047857;
+            font-size: 13px;
+        }
+
+        .problem-card {
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+        }
+
+        .future-risk-card {
+            padding: 18px;
+            border-radius: 12px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            margin-bottom: 12px;
+        }
+
+        .early-warning-card {
+            padding: 18px;
+            border-radius: 12px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 900px) {
+
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .business-info {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .heatmap-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .simulation-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .business-search-grid,
+            .add-business-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .business-info {
+                grid-template-columns: 1fr;
+            }
+
+            .heatmap-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .copilot-input {
+                flex-direction: column;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+
+    <h1>
+        🤖 AI Business Risk System
+    </h1>
+
+    <p class="subtitle">
+        AI-Powered Business Risk Prediction,
+        Early Warning & Intelligent Decision Support System
+    </p>
+
+
+    <!-- BUSINESS SEARCH + ADD -->
+
+    <div class="business-manager">
+
+        <h2>
+            🔎 Find & Select Business
+        </h2>
+
+        <p>
+            Search any business by name, category or location.
+            AI analyzes the latest saved business data and predicts
+            possible future risks.
+        </p>
+
+        <div class="business-search-grid">
+
+            <input
+                type="text"
+                id="businessSearch"
+                placeholder="Search business, category or location..."
+                oninput="filterBusinesses()">
+
+            <select
+                id="businessSelector"
+                onchange="selectBusiness(this.value)">
+
+                <option value="">
+                    Loading businesses...
+                </option>
+
+            </select>
+
+        </div>
+
+        <div
+            id="businessResults"
+            class="business-results">
+        </div>
+
+
+        <!-- ADD BUSINESS -->
+
+        <button
+            class="button"
+            type="button"
+            onclick="toggleAddBusinessForm()">
+
+            ➕ Add New Business
+
+        </button>
+
+
+        <div
+            id="addBusinessForm"
+            style="
+                display:none;
+                margin-top:15px;
+                padding:20px;
+                border:1px solid #e5e7eb;
+                border-radius:10px;
+                background:#f9fafb;
+            ">
+
+            <h3>
+                ➕ Add New Business
+            </h3>
+
+            <p>
+                Enter only the five common business details.
+            </p>
+
+            <div class="add-business-grid">
+
+                <!-- 1 -->
+
+                <input
+                    id="newBusinessName"
+                    type="text"
+                    placeholder="🏢 Business Name *">
+
+                <!-- 2 -->
+
+                <input
+                    id="newBusinessCategory"
+                    type="text"
+                    placeholder="📂 Category *">
+
+                <!-- 3 -->
+
+                <input
+                    id="newBusinessLocation"
+                    type="text"
+                    placeholder="📍 Location *">
+
+                <!-- 4 -->
+
+                <input
+                    id="newRevenue"
+                    type="number"
+                    min="0"
+                    placeholder="💰 Monthly Revenue">
+
+                <!-- 5 -->
+
+                <input
+                    id="newExpenses"
+                    type="number"
+                    min="0"
+                    placeholder="💸 Monthly Expenses">
+
+            </div>
+
+
+            <button
+                class="button"
+                type="button"
+                onclick="addNewBusiness()">
+
+                💾 Save Business
+
+            </button>
+
+
+            <button
+                class="button"
+                type="button"
+                onclick="toggleAddBusinessForm()">
+
+                ❌ Cancel
+
+            </button>
+
+
+            <div
+                id="addBusinessMessage"
+                style="margin-top:10px;">
+            </div>
+
+        </div>
+
+
+        <span class="live-status">
+
+            🔄 Latest MongoDB data •
+            AI risk auto-refresh every 60 seconds
+
+        </span>
+
+    </div>
+
+
+    <!-- BUSINESS INFORMATION -->
+
+    <div class="business-card">
+
+        <h2>
+            🏢 Business Risk Dashboard
+        </h2>
+
+        <div class="business-info">
+
+            <div class="info-box">
+
+                <strong>
+                    Business
+                </strong>
+
+                <br>
+
+                <span id="businessName">
+                    Select Business
+                </span>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <strong>
+                    Category
+                </strong>
+
+                <br>
+
+                <span id="businessCategory">
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <strong>
+                    Location
+                </strong>
+
+                <br>
+
+                <span id="businessLocation">
+                    -
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="button"
+            onclick="analyzeRisk()">
+
+            🔍 Analyze Business Risk
+
+        </button>
+
+
+        <div
+            id="analysisMessage"
+            style="margin-top:15px;">
+        </div>
+
+    </div>
+
+
+    <!-- MAIN CARDS -->
+
+    <div class="cards">
+
+        <div class="card">
+
+            <div class="card-title">
+                Overall Risk Score
+            </div>
+
+            <div
+                class="card-value"
+                id="riskScore">
+
+                0
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Risk Level
+            </div>
+
+            <div id="riskLevel">
+
+                <span class="status low">
+                    Not Analyzed
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Monthly Revenue
+            </div>
+
+            <div
+                class="card-value"
+                id="revenue">
+
+                ₹0
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Monthly Expenses
+            </div>
+
+            <div
+                class="card-value"
+                id="expenses">
+
+                ₹0
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- AI PREDICTION -->
+
+    <div class="section">
+
+        <h2>
+            🤖 AI Prediction
+        </h2>
+
+        <p>
+            AI analyzes the saved business data and identifies
+            possible future risk before the problem becomes serious.
+        </p>
+
+        <div
+            id="aiPrediction"
+            class="result-box">
+
+            Analyze the business to generate
+            an AI prediction.
+
+        </div>
+
+    </div>
+
+
+    <!-- EARLY WARNING -->
+
+    <div class="section">
+
+        <h2>
+            ⚠️ Early Warning Alerts
+        </h2>
+
+        <p>
+            Early warning indicators detected from the
+            latest saved business data.
+        </p>
+
+        <div
+            id="earlyWarnings"
+            class="result-box">
+
+            No analysis available.
+
+        </div>
+
+    </div>
+
+
+    <!-- CURRENT BUSINESS PROBLEMS -->
+
+    <div class="section">
+
+        <h2>
+            🚨 Current Business Problems
+        </h2>
+
+        <p>
+            Problems detected from the selected business data
+            and AI risk analysis.
+        </p>
+
+        <div
+            id="currentProblems"
+            class="result-box">
+
+            Select a business and analyze its latest risk status.
+
+        </div>
+
+    </div>
+
+
+    <!-- FUTURE RISK -->
+
+    <div class="section">
+
+        <h2>
+            🔮 Future Risk Prediction
+        </h2>
+
+        <p>
+            AI prediction based on the current saved business
+            information and detected risk indicators.
+        </p>
+
+        <div
+            id="futureForecast"
+            class="result-box">
+
+            <div class="future-risk-card">
+
+                🔮
+                <strong>
+                    Future risk prediction will appear after AI analysis.
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- WHAT IF -->
+
+    <div class="section">
+
+        <h2>
+            🔮 What-If Business Simulation
+        </h2>
+
+        <p>
+            Test how revenue and expenses can affect
+            the possible business risk.
+        </p>
+
+
+        <div class="simulation-grid">
+
+            <div class="input-group">
+
+                <label>
+                    Simulated Revenue
+                </label>
+
+                <input
+                    type="number"
+                    id="simRevenue"
+                    value="0"
+                    min="1">
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>
+                    Simulated Expenses
+                </label>
+
+                <input
+                    type="number"
+                    id="simExpenses"
+                    value="0"
+                    min="0">
+
+            </div>
+
+
+            <div class="input-group">
+
+        </div>
+
+
+        <button
+            class="button"
+            onclick="runSimulation()">
+
+            🔮 Run Simulation
+
+        </button>
+
+
+        <div
+            id="simulationResult"
+            class="result-box">
+
+            Enter values and run simulation.
+
+        </div>
+
+    </div>
+
+
+    <!-- COPILOT -->
+
+    <div class="section">
+
+        <h2>
+            🤖 AI Business Copilot
+        </h2>
+
+        <p>
+            Ask questions about the selected business risk.
+        </p>
+
+
+        <div class="copilot-input">
+
+            <input
+                type="text"
+                id="copilotQuestion"
+                placeholder="Example: Why is my business risk increasing?">
+
+            <button
+                class="button"
+                onclick="askCopilot()">
+
+                Ask AI
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="copilotAnswer"
+            class="result-box">
+
+            🤖 Ask me a business question.
+
+        </div>
+
+    </div>
+
+
+    <!-- EXPLAINABLE AI -->
+
+    <div class="section">
+
+        <h2>
+            🔍 Explainable AI
+        </h2>
+
+        <p>
+            Understand why AI generated the current risk score.
+        </p>
+
+
+        <button
+            class="button"
+            onclick="explainRisk()">
+
+            🔍 Explain My Risk
+
+        </button>
+
+
+        <div
+            id="riskExplanation"
+            class="result-box">
+
+            Click the button to see
+            the major risk factors.
+
+        </div>
+
+    </div>
+
+
+    <!-- HEATMAP -->
+
+    <div class="section">
+
+        <h2>
+            🌡️ Business Risk Heatmap
+        </h2>
+
+        <p>
+            Risk indicators generated from the AI analysis.
+        </p>
+
+
+        <div class="heatmap-grid">
+
+    <div class="heatmap-card">
+
+        <h3>💰 Financial Risk</h3>
+
+        <div
+            id="financialRisk"
+            class="heatmap-value risk-low">
+
+            Low
+
+        </div>
+
+    </div>
+
+
+    <div class="heatmap-card">
+
+        <h3>📈 Profitability Risk</h3>
+
+        <div
+            id="profitabilityRisk"
+            class="heatmap-value risk-low">
+
+            Low
+
+        </div>
+
+    </div>
+
+
+    <div class="heatmap-card">
+
+        <h3>💵 Revenue Risk</h3>
+
+        <div
+            id="revenueRisk"
+            class="heatmap-value risk-low">
+
+            Low
+
+        </div>
+
+    </div>
+
+
+    <div class="heatmap-card">
+
+        <h3>💸 Expense Risk</h3>
+
+        <div
+            id="expenseRisk"
+            class="heatmap-value risk-low">
+
+            Low
+
+        </div>
+
+    </div>
+
+
+    <div class="heatmap-card">
+
+        <h3>🔮 Future Risk</h3>
+
+        <div
+            id="futureRisk"
+            class="heatmap-value risk-low">
+
+            Low
+
+        </div>
+
+    </div>
+
+</div>
+
+
+    <!-- DETECTED RISKS -->
+
+    <div class="section">
+
+        <h2>
+            🚨 Detected Risks
+        </h2>
+
+        <div
+            id="detectedRisks"
+            class="result-box">
+
+            No risks detected yet.
+
+        </div>
+
+    </div>
+
+
+    <!-- RECOMMENDATIONS -->
+
+    <div class="section">
+
+        <h2>
+            💡 AI Recommendations
+        </h2>
+
+        <div
+            id="recommendations"
+            class="result-box">
+
+            No recommendations available.
+
+        </div>
+
+    </div>
+
+
+    <!-- RISK METRICS -->
+
+    <div class="section">
+
+        <h2>
+            📊 Risk Metrics
+        </h2>
+
+        <div
+            id="riskMetrics"
+            class="result-box">
+
+            Analyze the business to view
+            detailed risk metrics.
+
+        </div>
+
+    </div>
+
+
+    <!-- ANOMALY -->
+
+    <div class="section">
+
+        <h2>
+            🚨 AI Anomaly Detection
+        </h2>
+
+        <p>
+            Detect unusual patterns in the saved business data.
+        </p>
+
+        <button
+            class="button"
+            onclick="detectAnomalies()">
+
+            🔎 Detect Anomalies
+
+        </button>
+
+        <div
+            id="anomalyResult"
+            class="result-box">
+
+            Click the button to detect
+            unusual business patterns.
+
+        </div>
+
+    </div>
+
+
+    <!-- RECOMMENDATION ENGINE -->
+
+    <div class="section">
+
+        <h2>
+            💡 AI Recommendation Engine
+        </h2>
+
+        <p>
+            Generate risk-based actions for the selected business.
+        </p>
+
+        <button
+            class="button"
+            onclick="getRecommendations()">
+
+            🤖 Generate Recommendations
+
+        </button>
+
+        <div
+            id="recommendationEngineResult"
+            class="result-box">
+
+            Click the button to generate
+            AI recommendations.
+
+        </div>
+
+    </div>
+
+
+    <!-- AGENTIC REPORT -->
+
+    <div class="section">
+
+        <h2>
+            🤖 Agentic AI Business Report
+        </h2>
+
+        <p>
+            AI analyzes risk, detects unusual patterns,
+            predicts possible problems and generates actions.
+        </p>
+
+        <button
+            class="button"
+            onclick="generateAgenticReport()">
+
+            📄 Generate AI Report
+
+        </button>
+
+        <div
+            id="agenticReportResult"
+            class="result-box">
+
+            Click the button to generate
+            the AI business report.
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* ==========================================
+   API CONFIGURATION
+========================================== */
+
+let BUSINESS_ID =
+    localStorage.getItem("selectedBusinessId") ||
+    "6ab082f7b12599e9fd579a37";
+
+const API_URL =
+    "http://localhost:5000/api/businesses";
+
+
+/* ==========================================
+   ESCAPE HTML
+========================================== */
+
+function escapeHtml(value) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        String(value ?? "");
+
+    return div.innerHTML;
+
+}
+
+
+/* ==========================================
+   FORMAT CURRENCY
+========================================== */
+
+function formatCurrency(value) {
+
+    const number =
+        Number(value || 0);
+
+    return "₹" +
+        number.toLocaleString("en-IN");
+
+}
+
+
+/* ==========================================
+   RISK CLASS
+========================================== */
+
+function getRiskClass(level) {
+
+    const value =
+        String(level || "")
+            .toLowerCase();
+
+    if (value.includes("critical")) {
+        return "critical";
+    }
+
+    if (value.includes("high")) {
+        return "high";
+    }
+
+    if (value.includes("medium")) {
+        return "medium";
+    }
+
+    return "low";
+}
+
+
+/* ==========================================
+   ANALYZE BUSINESS RISK
+========================================== */
+
+async function analyzeRisk() {
+
+    const message =
+        document.getElementById("analysisMessage");
+
+    if (!BUSINESS_ID) {
+
+        message.innerHTML =
+            '<span class="error">❌ Please select a business.</span>';
+
+        return;
+    }
+
+    message.innerHTML =
+        '<span class="loading">⏳ AI is analyzing the latest business data...</span>';
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${BUSINESS_ID}/analyze-risk`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (
+            !response.ok ||
+            !data.success ||
+            !data.analysis
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Business risk analysis failed"
+            );
+
+        }
+
+        const analysis =
+            data.analysis;
+
+        const business =
+            data.business || {};
+
+        /* RISK SCORE */
+
+        const score =
+            Number(
+                analysis.overallRiskScore || 0
+            );
+
+        document.getElementById(
+            "riskScore"
+        ).textContent = score;
+
+
+        /* RISK LEVEL */
+
+        const riskLevel =
+            analysis.riskLevel || "Low";
+
+        const riskClass =
+            getRiskClass(riskLevel);
+
+        document.getElementById(
+            "riskLevel"
+        ).innerHTML =
+
+            `<span class="status ${riskClass}">
+                ${escapeHtml(riskLevel)}
+            </span>`;
+
+
+        /* BUSINESS INFORMATION */
+
+        document.getElementById(
+            "businessName"
+        ).textContent =
+            business.businessName ||
+            business.name ||
+            "Business";
+
+
+        document.getElementById(
+            "businessCategory"
+        ).textContent =
+            business.category ||
+            "General";
+
+
+        document.getElementById(
+            "businessLocation"
+        ).textContent =
+            business.location ||
+            "Location not available";
+
+
+        /* REVENUE */
+
+        document.getElementById(
+            "revenue"
+        ).textContent =
+            formatCurrency(
+                business.monthlyRevenue
+            );
+
+
+        /* EXPENSES */
+
+        document.getElementById(
+            "expenses"
+        ).textContent =
+            formatCurrency(
+                business.monthlyExpenses
+            );
+
+
+        /* AI PREDICTION */
+
+        const prediction =
+            analysis.prediction ||
+            analysis.aiPrediction ||
+            "No future prediction available.";
+
+        document.getElementById(
+            "aiPrediction"
+        ).innerHTML = `
+
+            <div class="future-risk-card">
+
+                <strong>
+                    🔮 AI Future Prediction
+                </strong>
+
+                <br><br>
+
+                ${escapeHtml(prediction)}
+
+            </div>
+
+        `;
+
+
+        /* EARLY WARNING */
+
+        updateEarlyWarnings(
+            analysis.detectedRisks || [],
+            analysis.prediction || analysis.aiPrediction || ""
+        );
+
+
+        /* CURRENT PROBLEMS */
+
+        updateCurrentProblems(
+            analysis
+        );
+
+
+        /* FUTURE RISK */
+
+        updateFutureRisk(
+            analysis
+        );
+
+
+        /* DETECTED RISKS */
+
+        updateDetectedRisks(
+            analysis.detectedRisks || []
+        );
+
+
+        /* RECOMMENDATIONS */
+
+        updateRecommendations(
+            analysis.recommendations || []
+        );
+
+
+        /* METRICS */
+
+        updateRiskMetrics(
+            analysis.metrics || {}
+        );
+
+
+        /* HEATMAP */
+
+        updateHeatmapFromMetrics(
+            analysis.metrics || {}
+        );
+
+
+        /* SIMULATION DEFAULTS */
+
+        const simRevenue =
+            document.getElementById("simRevenue");
+
+        const simExpenses =
+            document.getElementById("simExpenses");
+
+        if (simRevenue) {
+            simRevenue.value =
+                Number(
+                    business.monthlyRevenue || 0
+                );
+        }
+
+        if (simExpenses) {
+            simExpenses.value =
+                Number(
+                    business.monthlyExpenses || 0
+                );
+        }
+
+
+        message.innerHTML =
+            '<span class="success">✅ AI risk analysis completed using latest saved business data.</span>';
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Risk Analysis Error:",
+            error
+        );
+
+        message.innerHTML =
+            `<span class="error">
+                ❌ Risk Analysis Error:
+                ${escapeHtml(error.message)}
+            </span>`;
+
+    }
+
+}
+
+
+/* ==========================================
+   EARLY WARNING
+========================================== */
+
+function updateEarlyWarnings(
+    risks,
+    prediction
+) {
+
+    const box =
+        document.getElementById(
+            "earlyWarnings"
+        );
+
+    if (!box) {
+        return;
+    }
+
+    if (
+        !Array.isArray(risks) ||
+        risks.length === 0
+    ) {
+
+        box.innerHTML = `
+
+            <div class="risk-card">
+
+                🟢
+                <strong>
+                    No major early warning detected.
+                </strong>
+
+                <br><br>
+
+                Continue monitoring the latest business data.
+
+            </div>
+
+        `;
+
+    } else {
+
+        let html = "";
+
+        risks.forEach(function(risk) {
+
+            const type =
+                risk.type ||
+                risk.factor ||
+                "Business Risk";
+
+            const reason =
+                risk.reason ||
+                risk.message ||
+                "AI detected a possible risk indicator.";
+
+            /*
+             * Use the current overall risk level
+             * instead of the backend warning category.
+             */
+
+            const currentScore =
+                Number(
+                    risk.overallRiskScore ??
+                    0
+                );
+
+            const level =
+                calculateRiskLevel(
+                    currentScore
+                );
+
+            html += `
+
+                <div class="early-warning-card">
+
+                    ⚠️
+                    <strong>
+                        Early Warning: ${escapeHtml(type)}
+                    </strong>
+
+                    <br><br>
+
+                    <strong>
+                        Risk Level:
+                    </strong>
+
+                    ${escapeHtml(level)}
+
+                    <br>
+
+                    <strong>
+                        AI Warning:
+                    </strong>
+
+                    ${escapeHtml(reason)}
+
+                </div>
+
+            `;
+
+        });
+
+        if (prediction) {
+
+            html += `
+
+                <div class="future-risk-card">
+
+                    🔮
+                    <strong>
+                        Future Risk Signal
+                    </strong>
+
+                    <br><br>
+
+                    ${escapeHtml(prediction)}
+
+                </div>
+
+            `;
+
+        }
+
+        box.innerHTML = html;
+
+        return;
+    }
+
+    if (prediction) {
+
+        box.innerHTML += `
+
+            <div class="future-risk-card">
+
+                🔮
+                <strong>
+                    Future Risk Signal
+                </strong>
+
+                <br><br>
+
+                ${escapeHtml(prediction)}
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* ==========================================
+   FUTURE RISK
+========================================== */
+
+function updateFutureRisk(analysis) {
+
+    const box =
+        document.getElementById("futureForecast");
+
+    if (!box) {
+        return;
+    }
+
+
+    const currentScore =
+        Number(
+            analysis.overallRiskScore ??
+            analysis.metrics?.currentRiskScore ??
+            0
+        );
+
+
+    const futureRisk =
+        analysis.futureRisk || {};
+
+
+    const futureScore =
+        Number(
+            futureRisk.score ??
+            analysis.metrics?.futureRiskScore ??
+            currentScore
+        );
+
+
+    const futureLevel =
+        futureRisk.riskLevel ||
+        getRiskClass(futureRisk.riskLevel)
+            .replace("low", "Low")
+            .replace("medium", "Medium")
+            .replace("high", "High")
+            .replace("critical", "Critical") ||
+        "Low";
+
+
+    const prediction =
+        futureRisk.prediction ||
+        analysis.prediction ||
+        analysis.aiPrediction ||
+        "AI will continue monitoring the latest saved business data.";
+
+
+    box.innerHTML = `
+
+        <div class="future-risk-card">
+
+            <strong>
+                🔮 AI Future Risk Forecast
+            </strong>
+
+            <br><br>
+
+            <strong>
+                Current Risk Score:
+            </strong>
+
+            ${currentScore}
+
+            <br><br>
+
+            <strong>
+                Predicted Future Risk Score:
+            </strong>
+
+            ${futureScore}
+
+            <br><br>
+
+            <strong>
+                Future Risk Level:
+            </strong>
+
+            ${escapeHtml(futureLevel)}
+
+            <br><br>
+
+            <strong>
+                AI Prediction:
+            </strong>
+
+            ${escapeHtml(prediction)}
+
+        </div>
+
+    `;
+
+}
+
+
+/* ==========================================
+   CURRENT PROBLEMS
+========================================== */
+
+function updateCurrentProblems(
+    analysis
+) {
+
+    const box =
+        document.getElementById(
+            "currentProblems"
+        );
+
+    if (!box) {
+        return;
+    }
+
+    const risks =
+        Array.isArray(
+            analysis?.detectedRisks
+        )
+            ? analysis.detectedRisks
+            : [];
+
+    const currentRiskScore =
+        Number(
+            analysis?.overallRiskScore ??
+            analysis?.metrics?.currentRiskScore ??
+            0
+        );
+
+    const currentRiskLevel =
+        calculateRiskLevel(
+            currentRiskScore
+        );
+
+    if (risks.length === 0) {
+
+        box.innerHTML = `
+
+            <div class="risk-card">
+
+                🟢
+                <strong>
+                    No major current problem detected.
+                </strong>
+
+                <br><br>
+
+                Continue monitoring the latest business data.
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+    box.innerHTML =
+        risks.map(function(risk) {
+
+            const type =
+                risk.type ||
+                risk.factor ||
+                "Business Risk";
+
+            const reason =
+                risk.reason ||
+                risk.message ||
+                "Risk detected from current business data.";
+
+            return `
+
+                <div class="problem-card">
+
+                    <strong>
+                        🚨 ${escapeHtml(type)}
+                    </strong>
+
+                    <br><br>
+
+                    <strong>
+                        Risk:
+                    </strong>
+
+                    ${escapeHtml(currentRiskLevel)}
+
+                    <br>
+
+                    <strong>
+                        Problem:
+                    </strong>
+
+                    ${escapeHtml(reason)}
+
+                </div>
+
+            `;
+
+        }).join("");
+}
+
+
+/* ==========================================
+   DETECTED RISKS
+========================================== */
+
+function updateDetectedRisks(
+    risks
+) {
+
+    const box =
+        document.getElementById(
+            "detectedRisks"
+        );
+
+    if (
+        !Array.isArray(risks) ||
+        risks.length === 0
+    ) {
+
+        box.innerHTML =
+            "🟢 No major risks detected.";
+
+        return;
+    }
+
+
+    let html = "";
+
+    risks.forEach(function(risk) {
+
+        const type =
+            risk.type ||
+            risk.factor ||
+            "Business Risk";
+
+        const level =
+            risk.level ||
+            risk.impact ||
+            "Medium";
+
+        const reason =
+            risk.reason ||
+            risk.message ||
+            "Risk detected by AI.";
+
+        html += `
+
+            <div class="risk-card">
+
+                <strong>
+                    🚨 ${escapeHtml(type)}
+                </strong>
+
+                <br><br>
+
+                <strong>
+                    Risk Level:
+                </strong>
+
+                ${escapeHtml(level)}
+
+                <br>
+
+                <strong>
+                    Reason:
+                </strong>
+
+                ${escapeHtml(reason)}
+
+            </div>
+
+        `;
+
+    });
+
+
+    box.innerHTML =
+        html;
+
+}
+
+
+/* ==========================================
+   RECOMMENDATIONS
+========================================== */
+
+function updateRecommendations(
+    recommendations
+) {
+
+    const box =
+        document.getElementById(
+            "recommendations"
+        );
+
+
+    if (
+        !Array.isArray(recommendations) ||
+        recommendations.length === 0
+    ) {
+
+        box.innerHTML =
+            "🟢 No immediate recommendations.";
+
+        return;
+    }
+
+
+    let html = "";
+
+    recommendations.forEach(function(item) {
+
+        const text =
+            typeof item === "string"
+                ? item
+                : item.recommendation ||
+                  item.action ||
+                  item.message ||
+                  JSON.stringify(item);
+
+        html += `
+
+            <div class="risk-card">
+
+                💡
+                ${escapeHtml(text)}
+
+            </div>
+
+        `;
+
+    });
+
+
+    box.innerHTML =
+        html;
+
+}
+
+
+/* ==========================================
+   RISK METRICS
+========================================== */
+
+function updateRiskMetrics(metrics) {
+
+    const box =
+        document.getElementById("riskMetrics");
+
+    if (!box) {
+        return;
+    }
+
+    const financialScore =
+        Number(metrics.financialScore ?? 0);
+
+    const expenseRatio =
+        Number(metrics.expenseRatio ?? 0);
+
+    const currentRiskScore =
+        Number(
+            metrics.currentRiskScore ??
+            metrics.overallRiskScore ??
+            0
+        );
+
+    const futureRiskScore =
+        Number(
+            metrics.futureRiskScore ??
+            currentRiskScore
+        );
+
+    const profitMargin =
+        Number(metrics.profitMargin ?? 0);
+
+    box.innerHTML = `
+
+        <div class="risk-card">
+
+            <strong>
+                💰 Financial Score:
+            </strong>
+
+            ${financialScore}
+
+        </div>
+
+
+        <div class="risk-card">
+
+            <strong>
+                📊 Expense Ratio:
+            </strong>
+
+            ${expenseRatio.toFixed(1)}%
+
+        </div>
+
+
+        <div class="risk-card">
+
+            <strong>
+                📈 Profit Margin:
+            </strong>
+
+            ${profitMargin.toFixed(1)}%
+
+        </div>
+
+
+        <div class="risk-card">
+
+            <strong>
+                ⚠️ Current Overall Risk:
+            </strong>
+
+            ${currentRiskScore}
+
+        </div>
+
+
+        <div class="risk-card">
+
+            <strong>
+                🔮 Future Risk Score:
+            </strong>
+
+            ${futureRiskScore}
+
+        </div>
+
+    `;
+
+}
+
+
+/* ==========================================
+   HEATMAP
+========================================== */
+function updateHeatmapFromMetrics(metrics) {
+
+    const currentRiskScore =
+        Number(
+            metrics.currentRiskScore ??
+            metrics.overallRiskScore ??
+            0
+        );
+
+    const profitMargin =
+        Number(metrics.profitMargin ?? 0);
+
+    const expenseRatio =
+        Number(metrics.expenseRatio ?? 0);
+
+    const futureRiskScore =
+        Number(
+            metrics.futureRiskScore ??
+            currentRiskScore
+        );
+
+
+    /* Financial Risk */
+
+    const financialRisk =
+        calculateRiskLevel(
+            currentRiskScore
+        );
+
+    updateRiskHeatmap(
+        "financialRisk",
+        financialRisk
+    );
+
+
+    /* Profitability Risk */
+
+    let profitabilityRisk = "Low";
+
+    if (profitMargin < 0) {
+
+        profitabilityRisk = "Critical";
+
+    } else if (profitMargin < 5) {
+
+        profitabilityRisk = "High";
+
+    } else if (profitMargin < 10) {
+
+        profitabilityRisk = "Medium";
+
+    }
+
+
+    updateRiskHeatmap(
+        "profitabilityRisk",
+        profitabilityRisk
+    );
+
+
+    /* Revenue Risk */
+
+    const revenueRisk =
+        calculateRiskLevel(
+            currentRiskScore
+        );
+
+    updateRiskHeatmap(
+        "revenueRisk",
+        revenueRisk
+    );
+
+
+    /* Expense Risk */
+
+    let expenseRisk = "Low";
+
+    if (expenseRatio >= 100) {
+
+        expenseRisk = "Critical";
+
+    } else if (expenseRatio >= 90) {
+
+        expenseRisk = "High";
+
+    } else if (expenseRatio >= 75) {
+
+        expenseRisk = "Medium";
+
+    } else if (expenseRatio >= 60) {
+
+        expenseRisk = "Low";
+
+    }
+
+
+    updateRiskHeatmap(
+        "expenseRisk",
+        expenseRisk
+    );
+
+
+    /* Future Risk */
+
+    const futureRisk =
+        calculateRiskLevel(
+            futureRiskScore
+        );
+
+    updateRiskHeatmap(
+        "futureRisk",
+        futureRisk
+    );
+
+}
+
+/* ==========================================
+   RISK LEVEL CALCULATOR
+========================================== */
+
+function calculateRiskLevel(
+    score
+) {
+
+    const value =
+        Number(score || 0);
+
+    if (value >= 75) {
+        return "Critical";
+    }
+
+    if (value >= 50) {
+        return "High";
+    }
+
+    if (value >= 25) {
+        return "Medium";
+    }
+
+    return "Low";
+
+}
+
+/* ==========================================
+   UPDATE HEATMAP
+========================================== */
+
+function updateRiskHeatmap(
+    elementId,
+    riskLevel
+) {
+
+    const element =
+        document.getElementById(
+            elementId
+        );
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent =
+        riskLevel;
+
+    element.classList.remove(
+        "risk-low",
+        "risk-medium",
+        "risk-high",
+        "risk-critical"
+    );
+
+
+    if (riskLevel === "Low") {
+
+        element.classList.add(
+            "risk-low"
+        );
+
+    }
+
+    else if (riskLevel === "Medium") {
+
+        element.classList.add(
+            "risk-medium"
+        );
+
+    }
+
+    else if (riskLevel === "High") {
+
+        element.classList.add(
+            "risk-high"
+        );
+
+    }
+
+    else if (riskLevel === "Critical") {
+
+        element.classList.add(
+            "risk-critical"
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   WHAT IF SIMULATION
+========================================== */
+
+async function runSimulation() {
+
+    const revenue =
+        Number(
+            document.getElementById(
+                "simRevenue"
+            ).value
+        );
+
+    const expenses =
+        Number(
+            document.getElementById(
+                "simExpenses"
+            ).value
+        );
+
+    const result =
+        document.getElementById(
+            "simulationResult"
+        );
+
+
+    if (
+        !Number.isFinite(revenue) ||
+        !Number.isFinite(expenses) ||
+        revenue <= 0 ||
+        expenses < 0
+    ) {
+
+        result.innerHTML =
+            `<span class="error">
+                ❌ Please enter valid revenue and expense values.
+            </span>`;
+
+        return;
+    }
+
+
+    result.innerHTML =
+        `<span class="loading">
+            ⏳ AI is running What-If simulation...
+        </span>`;
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${BUSINESS_ID}/simulate-risk`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        revenue:
+                            revenue,
+
+                        expenses:
+                            expenses
+
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Simulation failed"
+            );
+
+        }
+
+
+        result.innerHTML = `
+
+            <strong>
+                🔮 What-If Simulation Result
+            </strong>
+
+            <br><br>
+
+            Current Risk Score:
+            <strong>
+                ${Number(
+                    data.currentRiskScore || 0
+                )}
+            </strong>
+
+            <br>
+
+            Simulated Risk Score:
+            <strong>
+                ${Number(
+                    data.simulatedRiskScore || 0
+                )}
+            </strong>
+
+            <br>
+
+            Simulated Risk Level:
+            <strong>
+                ${escapeHtml(
+                    data.simulatedRiskLevel ||
+                    "Unknown"
+                )}
+            </strong>
+
+            <br><br>
+
+            Simulated Revenue:
+            <strong>
+                ${formatCurrency(
+                    data.simulatedRevenue
+                )}
+            </strong>
+
+            <br>
+
+            Simulated Expenses:
+            <strong>
+                ${formatCurrency(
+                    data.simulatedExpenses
+                )}
+            </strong>
+
+            <br><br>
+
+            ${escapeHtml(
+                data.message ||
+                "Simulation completed."
+            )}
+
+        `;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Simulation Error:",
+            error
+        );
+
+        result.innerHTML =
+            `<span class="error">
+                ❌ Simulation Error:
+                ${escapeHtml(error.message)}
+            </span>`;
+
+    }
+
+}
+
+
+/* ==========================================
+   AI COPILOT
+========================================== */
+
+async function askCopilot() {
+
+    const input =
+        document.getElementById(
+            "copilotQuestion"
+        );
+
+    const answer =
+        document.getElementById(
+            "copilotAnswer"
+        );
+
+    const question =
+        input.value.trim();
+
+
+    if (!question) {
+
+        answer.innerHTML =
+            `<span class="error">
+                ❗ Please enter a question.
+            </span>`;
+
+        return;
+    }
+
+
+    answer.innerHTML =
+        '<span class="loading">⏳ AI is thinking...</span>';
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${BUSINESS_ID}/copilot`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            question:
+                                question
+                        })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "AI Copilot failed"
+            );
+
+        }
+
+
+        answer.innerHTML = `
+
+            <strong>
+                🤖 AI Business Copilot
+            </strong>
+
+            <br><br>
+
+            ${escapeHtml(
+                data.answer ||
+                "No answer received."
+            ).replace(
+                /\n/g,
+                "<br>"
+            )}
+
+        `;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Copilot Error:",
+            error
+        );
+
+        answer.innerHTML =
+            `<span class="error">
+                ❌ AI Copilot Error:
+                ${escapeHtml(error.message)}
+            </span>`;
+
+    }
+
+}
+
+
+/* ==========================================
+   EXPLAINABLE AI
+========================================== */
+
+async function explainRisk() {
+
+    const box =
+        document.getElementById(
+            "riskExplanation"
+        );
+
+
+    box.innerHTML =
+        '<span class="loading">⏳ AI is analyzing risk factors...</span>';
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${BUSINESS_ID}/explain-risk`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Risk explanation failed"
+            );
+
+        }
+
+
+        let html = `
+
+            <h3>
+                🔍 Why is my Risk Score
+                ${Number(
+                    data.overallRiskScore || 0
+                )}?
+            </h3>
+
+            <p>
+
+                <strong>
+                    Current Risk Level:
+                </strong>
+
+                ${escapeHtml(
+                    data.riskLevel ||
+                    "Not analyzed"
+                )}
+
+            </p>
+
+            <hr>
+
+        `;
+
+
+        const explanations =
+            Array.isArray(
+                data.explanation
+            )
+                ? data.explanation
+                : [];
+
+
+        if (
+            explanations.length === 0
+        ) {
+
+            html += `
+                <p>
+                    No detailed risk factors
+                    are currently available.
+                </p>
+            `;
+
+        }
+
+
+        explanations.forEach(function(item) {
+
+            let icon =
+                "🟢";
+
+
+            if (
+                item.impact ===
+                "High"
+            ) {
+
+                icon =
+                    "🔴";
+
+            }
+
+            else if (
+                item.impact ===
+                "Medium"
+            ) {
+
+                icon =
+                    "🟡";
+
+            }
+
+
+            html += `
+
+                <div style="
+                    margin-bottom:18px;
+                    padding:15px;
+                    border:1px solid #e5e7eb;
+                    border-radius:10px;
+                    background:#ffffff;
+                ">
+
+                    <h3>
+                        ${icon}
+                        ${escapeHtml(
+                            item.factor ||
+                            "Risk Factor"
+                        )}
+                    </h3>
+
+                    <p>
+
+                        <strong>
+                            Impact:
+                        </strong>
+
+                        ${escapeHtml(
+                            item.impact ||
+                            "Unknown"
+                        )}
+
+                    </p>
+
+                    <p>
+
+                        <strong>
+                            Reason:
+                        </strong>
+
+                        ${escapeHtml(
+                            item.reason ||
+                            "No reason provided."
+                        )}
+
+                    </p>
+
+                </div>
+
+            `;
+
+        });
+
+
+        box.innerHTML =
+            html;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Explainable AI Error:",
+            error
+        );
+
+        box.innerHTML =
+            `<span class="error">
+                ❌ Explainable AI Error:
+                ${escapeHtml(error.message)}
+            </span>`;
+
+    }
+
+}
+
+
+/* ==========================================
+   ANOMALY DETECTION
+========================================== */
+
+async function detectAnomalies() {
+
+    const box =
+        document.getElementById(
+            "anomalyResult"
+        );
+
+
+    box.innerHTML =
+        '<span class="loading">⏳ AI is detecting unusual business patterns...</span>';
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${BUSINESS_ID}/detect-anomalies`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Anomaly detection failed"
+            );
+
+        }
+
+
+        if (
+            !Array.isArray(
+                data.anomalies
+            ) ||
+            data.anomalies.length === 0
+        ) {
+
+            box.innerHTML = `
+
+                <div class="risk-card">
+
+                    🟢
+                    <strong>
+                        No major unusual business
+                        patterns detected.
+                    </strong>
+
+                </div>
+
+            `;
+
+            return;
+        }
+
+
+        let html = `
+
+            <div class="risk-card">
+
+                <strong>
+                    🚨 Anomaly Level:
+                </strong>
+
+                ${escapeHtml(
+                    data.anomalyLevel ||
+                    "Normal"
+                )}
+
+                <br><br>
+
+                <strong>
+                    Total Anomalies:
+                </strong>
+
+                ${Number(
+                    data.anomalyCount || 0
+                )}
+
+            </div>
+
+        `;
+
+
+        data.anomalies.forEach(function(item) {
+
+            html += `
+
+                <div class="risk-card">
+
+                    <strong>
+                        🚨
+                        ${escapeHtml(
+                            item.type ||
+                            "Business Anomaly"
+                        )}
+                    </strong>
+
+                    <br><br>
+
+                    <strong>
+                        Severity:
+                    </strong>
+
+                    ${escapeHtml(
+                        item.severity ||
+                        "Medium"
+                    )}
+
+                    <br>
+
+                    <strong>
+                        Message:
+                    </strong>
+
+                    ${escapeHtml(
+                        item.message ||
+                        "Unusual pattern detected."
+                    )}
+
+                </div>
+
+            `;
+
+        });
+
+
+        box.innerHTML =
+            html;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Anomaly Detection Error:",
+            error
+        );
+
+        box.innerHTML =
+            `<span class="error">
+                ❌ Anomaly Detection Error:
+                ${escapeHtml(error.message)}
+            </span>`;
+
+    }
+
+}
+
+
+/* ==========================================
+   RECOMMENDATION ENGINE
+========================================== */
+
+async function getRecommendations() {
+
+    const box =
+        document.getElementById(
+            "recommendationEngineResult"
+        );
+
+
+    box.innerHTML =
+        '<span class="loading">⏳ AI is generating recommendations...</span>';
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${BUSINESS_ID}/recommendations`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Recommendation generation failed"
+            );
+
+        }
+
+
+        const recommendations =
+            data.recommendations || [];
+
+
+        if (
+            recommendations.length === 0
+        ) {
+
+            box.innerHTML = `
+
+                <div class="risk-card">
+
+                    🟢
+                    No immediate actions recommended.
+
+                </div>
+
+            `;
+
+            return;
+        }
+
+
+        let html = "";
+
+
+        recommendations.forEach(function(item) {
+
+            if (
+                typeof item === "string"
+            ) {
+
+                html += `
+
+                    <div class="risk-card">
+
+                        💡
+                        ${escapeHtml(item)}
+
+                    </div>
+
+                `;
+
+            }
+
+            else {
+
+                html += `
+
+                    <div class="risk-card">
+
+                        <strong>
+
+                            💡
+                            ${escapeHtml(
+                                item.area ||
+                                "Business"
+                            )}
+
+                        </strong>
+
+                        <br><br>
+
+                        <strong>
+                            Priority:
+                        </strong>
+
+                        ${escapeHtml(
+                            item.priority ||
+                            "Medium"
+                        )}
+
+                        <br>
+
+                        <strong>
+                            Action:
+                        </strong>
+
+                        ${escapeHtml(
+                            item.action ||
+                            item.recommendation ||
+                            item.message ||
+                            "Review business risk."
+                        )}
+
+                    </div>
+
+                `;
+
+            }
+
+        });
+
+
+        box.innerHTML =
+            html;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Recommendation Engine Error:",
+            error
+        );
+
+        box.innerHTML =
+            `<span class="error">
+                ❌ Recommendation Error:
+                ${escapeHtml(error.message)}
+            </span>`;
+
+    }
+
+}
+
+
+/* ==========================================
+   AGENTIC AI REPORT
+========================================== */
+
+async function generateAgenticReport() {
+
+    const box =
+        document.getElementById(
+            "agenticReportResult"
+        );
+
+
+    box.innerHTML =
+        '<span class="loading">⏳ Agentic AI is analyzing the business...</span>';
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${BUSINESS_ID}/agentic-report`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success ||
+            !data.report
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Agentic AI report generation failed"
+            );
+
+        }
+
+
+        const report =
+            data.report;
+
+
+        let anomalyHtml =
+            "<p>🟢 No major anomalies detected.</p>";
+
+
+        if (
+            Array.isArray(
+                report.detectedAnomalies
+            ) &&
+            report.detectedAnomalies.length > 0
+        ) {
+
+            anomalyHtml = "";
+
+            report.detectedAnomalies.forEach(function(item) {
+
+                anomalyHtml += `
+
+                    <div class="risk-card">
+
+                        🚨
+                        ${escapeHtml(item)}
+
+                    </div>
+
+                `;
+
+            });
+
+        }
+
+
+        let riskHtml =
+            "<p>🟢 No major risks detected.</p>";
+
+
+        if (
+            Array.isArray(
+                report.detectedRisks
+            ) &&
+            report.detectedRisks.length > 0
+        ) {
+
+            riskHtml = "";
+
+            report.detectedRisks.forEach(function(item) {
+
+                riskHtml += `
+
+                    <div class="risk-card">
+
+                        🚨
+                        ${escapeHtml(
+                            typeof item === "string"
+                                ? item
+                                : item.type ||
+                                  item.factor ||
+                                  item.message ||
+                                  JSON.stringify(item)
+                        )}
+
+                    </div>
+
+                `;
+
+            });
+
+        }
+
+
+        let actionHtml =
+            "<p>🟢 No additional actions available.</p>";
+
+
+        if (
+            Array.isArray(
+                report.recommendedActions
+            ) &&
+            report.recommendedActions.length > 0
+        ) {
+
+            actionHtml = "";
+
+            report.recommendedActions.forEach(function(item) {
+
+                actionHtml += `
+
+                    <div class="risk-card">
+
+                        💡
+                        ${escapeHtml(item)}
+
+                    </div>
+
+                `;
+
+            });
+
+        }
+
+
+        let recommendationHtml =
+            "<p>🟢 No additional AI recommendations.</p>";
+
+
+        if (
+            Array.isArray(
+                report.aiRecommendations
+            ) &&
+            report.aiRecommendations.length > 0
+        ) {
+
+            recommendationHtml = "";
+
+            report.aiRecommendations.forEach(function(item) {
+
+                recommendationHtml += `
+
+                    <div class="risk-card">
+
+                        💡
+                        ${escapeHtml(
+                            typeof item === "string"
+                                ? item
+                                : item.action ||
+                                  item.recommendation ||
+                                  item.message ||
+                                  JSON.stringify(item)
+                        )}
+
+                    </div>
+
+                `;
+
+            });
+
+        }
+
+
+        box.innerHTML = `
+
+            <div class="risk-card">
+
+                <strong>
+                    🤖 Agent Status:
+                </strong>
+
+                ${escapeHtml(
+                    data.agentStatus ||
+                    "Completed"
+                )}
+
+            </div>
+
+
+            <div class="risk-card">
+
+                <strong>
+                    🏢 Business:
+                </strong>
+
+                ${escapeHtml(
+                    report.businessName ||
+                    "Business"
+                )}
+
+                <br><br>
+
+                <strong>
+                    📊 Risk Score:
+                </strong>
+
+                ${Number(
+                    report.riskScore || 0
+                )}
+
+                <br>
+
+                <strong>
+                    ⚠️ Risk Level:
+                </strong>
+
+                ${escapeHtml(
+                    report.riskLevel ||
+                    "Not analyzed"
+                )}
+
+                <br>
+
+                <strong>
+                    🎯 Priority:
+                </strong>
+
+                ${escapeHtml(
+                    report.priority ||
+                    "Low"
+                )}
+
+            </div>
+
+
+            <div class="risk-card">
+
+                <strong>
+                    🔮 AI Prediction
+                </strong>
+
+                <br><br>
+
+                ${escapeHtml(
+                    report.aiPrediction ||
+                    "No prediction available."
+                )}
+
+            </div>
+
+
+            <h3>
+                🚨 Detected Anomalies
+            </h3>
+
+            ${anomalyHtml}
+
+
+            <h3>
+                ⚠️ Detected Risks
+            </h3>
+
+            ${riskHtml}
+
+
+            <h3>
+                💡 Recommended Actions
+            </h3>
+
+            ${actionHtml}
+
+
+            <h3>
+                🤖 AI Recommendations
+            </h3>
+
+            ${recommendationHtml}
+
+        `;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Agentic Report Error:",
+            error
+        );
+
+        box.innerHTML =
+            `<span class="error">
+                ❌ Agentic AI Error:
+                ${escapeHtml(error.message)}
+            </span>`;
+
+    }
+
+}
+
+
+/* ==========================================
+   LOAD SELECTED BUSINESS
+========================================== */
+
+async function loadBusiness() {
+
+    try {
+
+        if (!BUSINESS_ID) {
+            return;
+        }
+
+
+        const response =
+            await fetch(
+                `${API_URL}/${BUSINESS_ID}`
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.message ||
+                "Unable to load selected business"
+            );
+
+        }
+
+
+        const item =
+            result.business ||
+            result.data ||
+            result;
+
+
+        if (!item) {
+
+            throw new Error(
+                "Business data not found"
+            );
+
+        }
+
+
+        document.getElementById(
+            "businessName"
+        ).textContent =
+            item.businessName ||
+            item.name ||
+            "Business";
+
+
+        document.getElementById(
+            "businessCategory"
+        ).textContent =
+            item.category ||
+            "General";
+
+
+        document.getElementById(
+            "businessLocation"
+        ).textContent =
+            item.location ||
+            "Location not available";
+
+
+        document.getElementById(
+            "revenue"
+        ).textContent =
+            formatCurrency(
+                item.monthlyRevenue
+            );
+
+
+        document.getElementById(
+            "expenses"
+        ).textContent =
+            formatCurrency(
+                item.monthlyExpenses
+            );
+
+
+        const simRevenue =
+            document.getElementById(
+                "simRevenue"
+            );
+
+        const simExpenses =
+            document.getElementById(
+                "simExpenses"
+            );
+
+
+        if (simRevenue) {
+
+            simRevenue.value =
+                Number(
+                    item.monthlyRevenue || 0
+                );
+
+        }
+
+
+        if (simExpenses) {
+
+            simExpenses.value =
+                Number(
+                    item.monthlyExpenses || 0
+                );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Business Load Error:",
+            error
+        );
+
+        const message =
+            document.getElementById(
+                "analysisMessage"
+            );
+
+        if (message) {
+
+            message.innerHTML =
+                `<span class="error">
+                    ❌ ${escapeHtml(error.message)}
+                </span>`;
+
+        }
+
+    }
+
+}
+
+
+/* ==========================================
+   LOAD ALL BUSINESSES
+========================================== */
+
+let allBusinesses = [];
+
+let businessRefreshTimer = null;
+
+
+async function loadBusinesses() {
+
+    const selector =
+        document.getElementById(
+            "businessSelector"
+        );
+
+    const resultsBox =
+        document.getElementById(
+            "businessResults"
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                API_URL
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Unable to load businesses"
+            );
+
+        }
+
+
+        allBusinesses =
+            Array.isArray(
+                data.businesses
+            )
+                ? data.businesses
+                : [];
+
+
+        if (!selector) {
+            return;
+        }
+
+
+        selector.innerHTML =
+            '<option value="">Select a business...</option>';
+
+
+        allBusinesses.forEach(function(item) {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                item._id;
+
+
+            option.textContent =
+                `${item.businessName || item.name || "Business"} — ${item.location || "Location not specified"}`;
+
+
+            selector.appendChild(
+                option
+            );
+
+        });
+
+
+        if (
+            BUSINESS_ID &&
+            allBusinesses.some(function(item) {
+
+                return item._id === BUSINESS_ID;
+
+            })
+        ) {
+
+            selector.value =
+                BUSINESS_ID;
+
+        }
+
+        else if (
+            allBusinesses.length > 0
+        ) {
+
+            BUSINESS_ID =
+                allBusinesses[0]._id;
+
+            localStorage.setItem(
+                "selectedBusinessId",
+                BUSINESS_ID
+            );
+
+            selector.value =
+                BUSINESS_ID;
+
+        }
+
+
+        filterBusinesses();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Load Businesses Error:",
+            error
+        );
+
+
+        if (selector) {
+
+            selector.innerHTML =
+                '<option value="">Unable to load businesses</option>';
+
+        }
+
+
+        if (resultsBox) {
+
+            resultsBox.innerHTML =
+                `<div class="error">
+                    ❌ ${escapeHtml(error.message)}
+                </div>`;
+
+        }
+
+    }
+
+}
+
+
+/* ==========================================
+   SEARCH BUSINESS
+========================================== */
+
+function filterBusinesses() {
+
+    const input =
+        document.getElementById(
+            "businessSearch"
+        );
+
+    const resultsBox =
+        document.getElementById(
+            "businessResults"
+        );
+
+
+    if (!input || !resultsBox) {
+        return;
+    }
+
+
+    const query =
+        input.value
+            .trim()
+            .toLowerCase();
+
+
+    const matches =
+        allBusinesses.filter(function(item) {
+
+            const name =
+                String(
+                    item.businessName ||
+                    item.name ||
+                    ""
+                ).toLowerCase();
+
+
+            const category =
+                String(
+                    item.category ||
+                    ""
+                ).toLowerCase();
+
+
+            const location =
+                String(
+                    item.location ||
+                    ""
+                ).toLowerCase();
+
+
+            return !query ||
+                name.includes(query) ||
+                category.includes(query) ||
+                location.includes(query);
+
+        });
+
+
+    if (
+        matches.length === 0
+    ) {
+
+        resultsBox.innerHTML =
+            query
+                ? '<div class="risk-card">🔎 No matching business found.</div>'
+                : '<div class="risk-card">No businesses available.</div>';
+
+        return;
+    }
+
+
+    resultsBox.innerHTML =
+        matches.map(function(item) {
+
+            const id =
+                escapeHtml(
+                    item._id || ""
+                );
+
+
+            const name =
+                escapeHtml(
+                    item.businessName ||
+                    item.name ||
+                    "Business"
+                );
+
+
+            const category =
+                escapeHtml(
+                    item.category ||
+                    "General"
+                );
+
+
+            const location =
+                escapeHtml(
+                    item.location ||
+                    "Location not specified"
+                );
+
+
+            return `
+
+                <div
+                    class="business-result"
+                    onclick="selectBusiness('${id}')">
+
+                    <strong>
+                        🏢 ${name}
+                    </strong>
+
+                    <br>
+
+                    📂 ${category}
+
+                    &nbsp; | &nbsp;
+
+                    📍 ${location}
+
+                </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* ==========================================
+   SELECT BUSINESS
+========================================== */
+
+async function selectBusiness(id) {
+
+    if (!id) {
+        return;
+    }
+
+
+    BUSINESS_ID =
+        id;
+
+
+    localStorage.setItem(
+        "selectedBusinessId",
+        BUSINESS_ID
+    );
+
+
+    const selector =
+        document.getElementById(
+            "businessSelector"
+        );
+
+
+    if (selector) {
+
+        selector.value =
+            BUSINESS_ID;
+
+    }
+
+
+    resetRiskDisplays();
+
+
+    await loadBusiness();
+
+    await analyzeRisk();
+
+}
+
+
+/* ==========================================
+   RESET DASHBOARD
+========================================== */
+
+function resetRiskDisplays() {
+
+    const riskScore =
+        document.getElementById(
+            "riskScore"
+        );
+
+
+    if (riskScore) {
+
+        riskScore.textContent =
+            "0";
+
+    }
+
+
+    const riskLevel =
+        document.getElementById(
+            "riskLevel"
+        );
+
+
+    if (riskLevel) {
+
+        riskLevel.innerHTML =
+            '<span class="status low">Not Analyzed</span>';
+
+    }
+
+
+    const defaults = {
+
+        aiPrediction:
+            "⏳ Waiting for AI risk analysis...",
+
+        earlyWarnings:
+            "⏳ Checking early warning indicators...",
+
+        currentProblems:
+            "⏳ Checking current business problems...",
+
+        futureForecast:
+            "⏳ Generating future risk prediction...",
+
+        detectedRisks:
+            "⏳ Checking detected risks...",
+
+        recommendations:
+            "⏳ Loading recommendations...",
+
+        riskMetrics:
+            "⏳ Loading risk metrics...",
+
+        anomalyResult:
+            "Click the button to detect unusual business patterns.",
+
+        recommendationEngineResult:
+            "Click the button to generate AI recommendations.",
+
+        agenticReportResult:
+            "Click the button to generate the AI business report."
+
+    };
+
+
+    Object.keys(
+        defaults
+    ).forEach(function(id) {
+
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+
+            element.innerHTML =
+                defaults[id];
+
+        }
+
+    });
+
+}
+
+
+/* ==========================================
+   ADD BUSINESS FORM
+========================================== */
+
+function toggleAddBusinessForm() {
+
+    const form =
+        document.getElementById(
+            "addBusinessForm"
+        );
+
+
+    if (!form) {
+        return;
+    }
+
+
+    form.style.display =
+        form.style.display === "none" ||
+        form.style.display === ""
+            ? "block"
+            : "none";
+
+}
+
+
+/* ==========================================
+   ADD BUSINESS
+   ONLY 5 FIELDS
+========================================== */
+
+async function addNewBusiness() {
+
+    const name =
+        document.getElementById(
+            "newBusinessName"
+        )?.value.trim();
+
+
+    const category =
+        document.getElementById(
+            "newBusinessCategory"
+        )?.value.trim();
+
+
+    const location =
+        document.getElementById(
+            "newBusinessLocation"
+        )?.value.trim();
+
+
+    const revenue =
+        Number(
+            document.getElementById(
+                "newRevenue"
+            )?.value || 0
+        );
+
+
+    const expenses =
+        Number(
+            document.getElementById(
+                "newExpenses"
+            )?.value || 0
+        );
+
+
+    const message =
+        document.getElementById(
+            "addBusinessMessage"
+        );
+
+
+    /* REQUIRED FIELDS */
+
+    if (
+        !name ||
+        !category ||
+        !location
+    ) {
+
+        message.innerHTML =
+            `<span class="error">
+                ⚠️ Business Name, Category and Location are required.
+            </span>`;
+
+        return;
+    }
+
+
+    if (
+        revenue < 0 ||
+        expenses < 0
+    ) {
+
+        message.innerHTML =
+            `<span class="error">
+                ⚠️ Revenue and Expenses cannot be negative.
+            </span>`;
+
+        return;
+    }
+
+
+    const payload = {
+
+        businessName:
+            name,
+
+        category:
+            category,
+
+        location:
+            location,
+
+        monthlyRevenue:
+            revenue,
+
+        monthlyExpenses:
+            expenses,
+
+        monthlyProfit:
+            revenue - expenses
+
+    };
+
+
+    try {
+
+        message.innerHTML =
+            '<span class="loading">⏳ Saving business to MongoDB...</span>';
+
+
+        const response =
+            await fetch(
+                API_URL,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Business creation failed"
+            );
+
+        }
+
+
+        const newBusiness =
+            data.business;
+
+
+        if (
+            !newBusiness ||
+            !newBusiness._id
+        ) {
+
+            throw new Error(
+                "Business was created but ID was not returned."
+            );
+
+        }
+
+
+        BUSINESS_ID =
+            newBusiness._id;
+
+
+        localStorage.setItem(
+            "selectedBusinessId",
+            BUSINESS_ID
+        );
+
+
+        message.innerHTML =
+            `<span class="success">
+                ✅ Business added successfully.
+                AI risk analysis will now start.
+            </span>`;
+
+
+        clearNewBusinessForm();
+
+
+        await loadBusinesses();
+
+        await loadBusiness();
+
+        await analyzeRisk();
+
+
+        setTimeout(function() {
+
+            const form =
+                document.getElementById(
+                    "addBusinessForm"
+                );
+
+            if (form) {
+
+                form.style.display =
+                    "none";
+
+            }
+
+        }, 1000);
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Add Business Error:",
+            error
+        );
+
+
+        message.innerHTML =
+            `<span class="error">
+                ❌ ${escapeHtml(error.message)}
+            </span>`;
+
+    }
+
+}
+
+
+/* ==========================================
+   CLEAR ADD BUSINESS FORM
+========================================== */
+
+function clearNewBusinessForm() {
+
+    [
+
+        "newBusinessName",
+
+        "newBusinessCategory",
+
+        "newBusinessLocation",
+
+        "newRevenue",
+
+        "newExpenses"
+
+    ].forEach(function(id) {
+
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+
+            element.value =
+                "";
+
+        }
+
+    });
+
+}
+
+
+/* ==========================================
+   ENTER KEY COPILOT
+========================================== */
+
+const copilotQuestion =
+    document.getElementById(
+        "copilotQuestion"
+    );
+
+
+if (copilotQuestion) {
+
+    copilotQuestion.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                event.preventDefault();
+
+                askCopilot();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   INITIALIZE DASHBOARD
+========================================== */
+
+async function initializeDashboard() {
+
+    await loadBusinesses();
+
+    await loadBusiness();
+
+    if (BUSINESS_ID) {
+
+        await analyzeRisk();
+
+    }
+
+
+    if (businessRefreshTimer) {
+
+        clearInterval(
+            businessRefreshTimer
+        );
+
+    }
+
+
+    /*
+       AUTO REFRESH
+
+       Latest MongoDB data
+       +
+       Fresh AI risk analysis
+    */
+
+    businessRefreshTimer =
+        setInterval(
+            async function() {
+
+                if (!BUSINESS_ID) {
+                    return;
+                }
+
+                await loadBusiness();
+
+                await analyzeRisk();
+
+            },
+            60000
+        );
+
+}
+
+
+initializeDashboard();
+
+</script>
+<!-- =====================================================
+     🎙️ VOICE + CHAT AI BUSINESS ASSISTANT
+     Add this block just before </body>
+===================================================== -->
+
+<style>
+    .voice-ai-section {
+        background: white;
+        padding: 25px;
+        margin-top: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    }
+
+    .voice-ai-title {
+        margin-top: 0;
+    }
+
+    .voice-ai-input {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+    }
+
+    .voice-ai-input input {
+        flex: 1;
+        min-width: 200px;
+        padding: 13px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 15px;
+    }
+
+    .voice-ai-button {
+        border: none;
+        padding: 12px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        background: #2563eb;
+        color: white;
+        font-size: 15px;
+    }
+
+    .voice-ai-button:hover {
+        background: #1d4ed8;
+    }
+
+    .voice-ai-mic {
+        background: #dc2626;
+    }
+
+    .voice-ai-mic:hover {
+        background: #b91c1c;
+    }
+
+    .voice-ai-stop {
+        background: #6b7280;
+    }
+
+    .voice-ai-answer {
+        margin-top: 20px;
+        padding: 20px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        line-height: 1.7;
+        min-height: 60px;
+    }
+
+    .voice-status {
+        margin-top: 12px;
+        color: #2563eb;
+        font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+        .voice-ai-input {
+            flex-direction: column;
+        }
+
+        .voice-ai-input input,
+        .voice-ai-button {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="voice-ai-section">
+
+    <h2 class="voice-ai-title">
+        🎙️ AI Voice Business Assistant
+    </h2>
+
+    <p>
+        Talk to the AI about the selected business risk,
+        future risk, problems and recommendations.
+    </p>
+
+    <div class="voice-ai-input">
+
+        <input
+            type="text"
+            id="voiceAiQuestion"
+            placeholder="Type your business question...">
+
+        <button
+            type="button"
+            class="voice-ai-button"
+            onclick="sendVoiceAiQuestion()">
+            💬 Ask AI
+        </button>
+
+        <button
+            type="button"
+            class="voice-ai-button voice-ai-mic"
+            onclick="startVoiceAI()">
+            🎤 Speak
+        </button>
+
+        <button
+            type="button"
+            class="voice-ai-button voice-ai-stop"
+            onclick="stopVoiceAI()">
+            ⏹ Stop
+        </button>
+
+    </div>
+
+    <div
+        id="voiceAiStatus"
+        class="voice-status">
+    </div>
+
+    <div
+        id="voiceAiAnswer"
+        class="voice-ai-answer">
+
+        🤖 Ask me anything about the selected business.
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   🎙️ VOICE AI BUSINESS ASSISTANT
+===================================================== */
+
+let voiceRecognition = null;
+
+
+/* =====================================================
+   🔊 AI VOICE REPLY
+===================================================== */
+
+function speakAIAnswer(text) {
+
+    if (!text) {
+        return;
+    }
+
+    if (!("speechSynthesis" in window)) {
+
+        console.warn(
+            "Speech synthesis is not supported in this browser."
+        );
+
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const speech =
+        new SpeechSynthesisUtterance(text);
+
+    speech.lang = "en-IN";
+    speech.rate = 1;
+    speech.pitch = 1;
+
+    window.speechSynthesis.speak(speech);
+}
+
+
+/* =====================================================
+   🎤 START VOICE INPUT
+===================================================== */
+
+function startVoiceAI() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+
+        alert(
+            "Voice input is not supported in this browser. Please use Google Chrome."
+        );
+
+        return;
+    }
+
+    if (voiceRecognition) {
+
+        try {
+            voiceRecognition.stop();
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    voiceRecognition =
+        new SpeechRecognition();
+
+    voiceRecognition.lang = "en-IN";
+
+    voiceRecognition.continuous = false;
+
+    voiceRecognition.interimResults = false;
+
+    voiceRecognition.maxAlternatives = 1;
+
+
+    const questionInput =
+        document.getElementById(
+            "voiceAiQuestion"
+        );
+
+    const status =
+        document.getElementById(
+            "voiceAiStatus"
+        );
+
+
+    status.textContent =
+        "🎤 Listening... Please speak now.";
+
+
+    voiceRecognition.start();
+
+
+    voiceRecognition.onresult =
+        function(event) {
+
+            const transcript =
+                event.results[0][0].transcript;
+
+            questionInput.value =
+                transcript;
+
+            status.textContent =
+                "✅ Voice captured. AI is answering...";
+
+            sendVoiceAiQuestion();
+
+        };
+
+
+    voiceRecognition.onerror =
+        function(event) {
+
+            console.error(
+                "Voice Recognition Error:",
+                event
+            );
+
+            status.textContent =
+                "❌ Voice input failed. Please try again.";
+
+        };
+
+
+    voiceRecognition.onend =
+        function() {
+
+            if (
+                status.textContent.includes(
+                    "Listening"
+                )
+            ) {
+
+                status.textContent =
+                    "";
+
+            }
+
+        };
+
+}
+
+
+/* =====================================================
+   ⏹ STOP VOICE
+===================================================== */
+
+function stopVoiceAI() {
+
+    if (voiceRecognition) {
+
+        try {
+            voiceRecognition.stop();
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    if (
+        "speechSynthesis" in window
+    ) {
+
+        window.speechSynthesis.cancel();
+
+    }
+
+    const status =
+        document.getElementById(
+            "voiceAiStatus"
+        );
+
+    status.textContent =
+        "⏹ Voice stopped.";
+
+}
+
+
+/* =====================================================
+   🤖 SEND QUESTION TO EXISTING AI COPILOT
+===================================================== */
+
+async function sendVoiceAiQuestion() {
+
+    const input =
+        document.getElementById(
+            "voiceAiQuestion"
+        );
+
+    const answerBox =
+        document.getElementById(
+            "voiceAiAnswer"
+        );
+
+    const status =
+        document.getElementById(
+            "voiceAiStatus"
+        );
+
+
+    const question =
+        input.value.trim();
+
+
+    if (!question) {
+
+        status.textContent =
+            "⚠️ Please type or speak a question.";
+
+        return;
+    }
+
+
+    if (!BUSINESS_ID) {
+
+        answerBox.innerHTML =
+            "❌ Please select a business first.";
+
+        return;
+    }
+
+
+    answerBox.innerHTML =
+        '<span class="loading">🤖 AI is thinking...</span>';
+
+
+    status.textContent =
+        "🧠 AI is analyzing the selected business...";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${BUSINESS_ID}/copilot`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        question: question
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "AI response failed"
+            );
+
+        }
+
+
+        const answer =
+            data.answer ||
+            "No answer received.";
+
+
+        answerBox.innerHTML = `
+
+            <strong>
+                🤖 AI Business Assistant
+            </strong>
+
+            <br><br>
+
+            ${escapeHtml(answer)
+                .replace(/\n/g, "<br>")}
+
+        `;
+
+
+        status.textContent =
+            "🔊 AI is speaking...";
+
+
+        speakAIAnswer(answer);
+
+
+        setTimeout(
+            function() {
+
+                status.textContent =
+                    "✅ Ready for your next question.";
+
+            },
+            1500
+        );
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Voice AI Error:",
+            error
+        );
+
+
+        answerBox.innerHTML = `
+
+            <span class="error">
+
+                ❌ AI Error:
+
+                ${escapeHtml(
+                    error.message
+                )}
+
+            </span>
+
+        `;
+
+
+        status.textContent =
+            "❌ Something went wrong.";
+
+    }
+
+}
+
+
+/* =====================================================
+   ⌨️ ENTER KEY
+===================================================== */
+
+document
+    .getElementById("voiceAiQuestion")
+    .addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                event.preventDefault();
+
+                sendVoiceAiQuestion();
+
+            }
+
+        }
+    );
+
+</script>
+</body>
+
+</html>
