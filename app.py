@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from risk_engine import calculate_risk
 
@@ -201,8 +202,8 @@ if __name__ == "__main__":
         "http://localhost:8000/api/risk/future"
     )
 
-    app.run(
-        host="0.0.0.0",
-        port=8000,
-        debug=True
-    )
+app.run(
+    host="0.0.0.0",
+    port=int(os.environ.get("PORT", 8000)),
+    debug=False
+)
