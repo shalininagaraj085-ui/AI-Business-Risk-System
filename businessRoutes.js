@@ -2161,39 +2161,29 @@ router.get("/:id/recommendations", async (req, res) => {
                 business.monthlyExpenses || 0
             );
 
+          const analysis =
+    calculateRisk({
 
-        const response =
-    await axios.post(
+        businessName:
+            business.businessName,
 
-        AI_API_URL,
+        category:
+            business.category,
 
-        {
+        location:
+            business.location,
 
-            businessName:
-                business.businessName,
+        monthlyRevenue:
+            revenue,
 
-            category:
-                business.category,
+        monthlyExpenses:
+            expenses,
 
-            location:
-                business.location,
+        monthlyProfit:
+            revenue - expenses
 
-            monthlyRevenue:
-                revenue,
-
-            monthlyExpenses:
-                expenses,
-
-            monthlyProfit:
-                revenue - expenses
-
-        },
-
-        {
-            timeout: 60000
-        }
-
-    );
+    });
+        
 
 
         return res.json({
@@ -2204,8 +2194,7 @@ router.get("/:id/recommendations", async (req, res) => {
                 business.businessName,
 
             recommendations:
-                response.data.analysis
-                    ?.recommendationActions || []
+    analysis.recommendationActions || []
 
         });
 
@@ -2297,23 +2286,9 @@ router.get("/:id/agentic-report", async (req, res) => {
 
         };
 
-
-        const aiResponse =
-    await axios.post(
-
-        AI_API_URL,
-
-        aiData,
-
-        {
-            timeout: 60000
-        }
-
-    );
-
-
-        const analysis =
-            aiResponse.data.analysis || {};
+            const analysis =
+    calculateRisk(aiData);
+        
 
 
         // ---------------------------------------------
