@@ -1,6 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 const Business = require("./businessModel");
+const { calculateRisk } = require("./riskEngine");
 
 const router = express.Router();
 
@@ -1305,34 +1306,15 @@ router.post("/:id/analyze-risk", async (req, res) => {
 
 
         // ---------------------------------------------
-        // 3. Send data to Python AI
-        // ---------------------------------------------
+// 3. Run local AI risk engine
+// ---------------------------------------------
 
-        console.log(
-            `🤖 Sending ${business.businessName} financial data to AI...`
-        );
+console.log(
+    `🤖 Analyzing ${business.businessName} financial data...`
+);
 
-
-        const aiResponse =
-            await axios.post(
-
-                AI_API_URL,
-
-                aiData,
-
-                
-                { timeout: 60000 }
-
-            );
-
-
-        // ---------------------------------------------
-        // 4. Get AI result
-        // ---------------------------------------------
-
-        const analysis =
-            aiResponse.data.analysis || {};
-
+const analysis =
+    calculateRisk(aiData);
 
         // ---------------------------------------------
         // 5. Save AI result
