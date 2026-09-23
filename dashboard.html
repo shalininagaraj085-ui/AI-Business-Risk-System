@@ -4381,96 +4381,71 @@ async function initializeDashboard() {
 
 
 initializeDashboard();
-
-</script>
 <!-- =====================================================
-     🎙️ VOICE + CHAT AI BUSINESS ASSISTANT
-     Add this block just before </body>
+     🎙️ AI VOICE BUSINESS ASSISTANT
 ===================================================== -->
 
 <style>
-    .voice-ai-section {
-        background: white;
-        padding: 25px;
-        margin-top: 25px;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-    }
+.voice-ai-section {
+    margin-top: 30px;
+    padding: 25px;
+    border-radius: 15px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
 
-    .voice-ai-title {
-        margin-top: 0;
-    }
+.voice-ai-title {
+    margin-bottom: 8px;
+}
 
-    .voice-ai-input {
-        display: flex;
-        gap: 10px;
-        margin-top: 15px;
-        flex-wrap: wrap;
-    }
+.voice-ai-input {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
 
-    .voice-ai-input input {
-        flex: 1;
-        min-width: 200px;
-        padding: 13px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 15px;
-    }
+.voice-ai-input input {
+    flex: 1;
+    min-width: 220px;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 15px;
+}
 
-    .voice-ai-button {
-        border: none;
-        padding: 12px 18px;
-        border-radius: 8px;
-        cursor: pointer;
-        background: #2563eb;
-        color: white;
-        font-size: 15px;
-    }
+.voice-ai-button {
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
 
-    .voice-ai-button:hover {
-        background: #1d4ed8;
-    }
+.voice-ai-mic {
+    background: #16a34a;
+    color: white;
+}
 
-    .voice-ai-mic {
-        background: #dc2626;
-    }
+.voice-ai-stop {
+    background: #dc2626;
+    color: white;
+}
 
-    .voice-ai-mic:hover {
-        background: #b91c1c;
-    }
+.voice-ai-answer {
+    margin-top: 18px;
+    padding: 18px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    line-height: 1.6;
+}
 
-    .voice-ai-stop {
-        background: #6b7280;
-    }
-
-    .voice-ai-answer {
-        margin-top: 20px;
-        padding: 20px;
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        line-height: 1.7;
-        min-height: 60px;
-    }
-
-    .voice-status {
-        margin-top: 12px;
-        color: #2563eb;
-        font-weight: bold;
-    }
-
-    @media (max-width: 600px) {
-        .voice-ai-input {
-            flex-direction: column;
-        }
-
-        .voice-ai-input input,
-        .voice-ai-button {
-            width: 100%;
-        }
-    }
+.voice-status {
+    margin-top: 12px;
+    font-size: 14px;
+}
 </style>
-
 
 <div class="voice-ai-section">
 
@@ -4479,8 +4454,8 @@ initializeDashboard();
     </h2>
 
     <p>
-        Talk to the AI about the selected business risk,
-        future risk, problems and recommendations.
+        Ask questions about the selected business,
+        risk, prediction, problems and recommendations.
     </p>
 
     <div class="voice-ai-input">
@@ -4488,7 +4463,8 @@ initializeDashboard();
         <input
             type="text"
             id="voiceAiQuestion"
-            placeholder="Type your business question...">
+            placeholder="Type your business question..."
+        >
 
         <button
             type="button"
@@ -4521,24 +4497,18 @@ initializeDashboard();
     <div
         id="voiceAiAnswer"
         class="voice-ai-answer">
-
         🤖 Ask me anything about the selected business.
     </div>
 
 </div>
 
-
 <script>
-
-/* =====================================================
-   🎙️ VOICE AI BUSINESS ASSISTANT
-===================================================== */
 
 let voiceRecognition = null;
 
 
 /* =====================================================
-   🔊 AI VOICE REPLY
+   🔊 AI SPEECH OUTPUT
 ===================================================== */
 
 function speakAIAnswer(text) {
@@ -4548,18 +4518,13 @@ function speakAIAnswer(text) {
     }
 
     if (!("speechSynthesis" in window)) {
-
-        console.warn(
-            "Speech synthesis is not supported in this browser."
-        );
-
+        console.warn("Speech synthesis is not supported.");
         return;
     }
 
-    // Stop previous speech
     window.speechSynthesis.cancel();
 
-    function speakNow() {
+    const speakNow = function () {
 
         const speech =
             new SpeechSynthesisUtterance(text);
@@ -4572,90 +4537,59 @@ function speakAIAnswer(text) {
         const voices =
             window.speechSynthesis.getVoices();
 
-        // Prefer Indian English voice
         const indianVoice =
-            voices.find(function(voice) {
-                return voice.lang === "en-IN";
+            voices.find(function (voice) {
+                return voice.lang &&
+                    voice.lang.toLowerCase() === "en-in";
             });
 
-        // Otherwise use any English voice
         const englishVoice =
-            voices.find(function(voice) {
+            voices.find(function (voice) {
                 return voice.lang &&
-                       voice.lang.toLowerCase()
-                           .startsWith("en");
+                    voice.lang.toLowerCase().startsWith("en");
             });
 
         if (indianVoice) {
-
-            speech.voice =
-                indianVoice;
-
-        }
-        else if (englishVoice) {
-
-            speech.voice =
-                englishVoice;
-
+            speech.voice = indianVoice;
+        } else if (englishVoice) {
+            speech.voice = englishVoice;
         }
 
-        speech.onstart =
-            function() {
+        const status =
+            document.getElementById("voiceAiStatus");
 
-                const status =
-                    document.getElementById(
-                        "voiceAiStatus"
-                    );
+        speech.onstart = function () {
 
-                if (status) {
+            if (status) {
+                status.textContent =
+                    "🔊 AI is speaking...";
+            }
+        };
 
-                    status.textContent =
-                        "🔊 AI is speaking...";
+        speech.onend = function () {
 
-                }
-            };
+            if (status) {
+                status.textContent =
+                    "✅ Ready for your next question.";
+            }
+        };
 
-        speech.onend =
-            function() {
+        speech.onerror = function (error) {
 
-                const status =
-                    document.getElementById(
-                        "voiceAiStatus"
-                    );
+            console.error(
+                "Speech Error:",
+                error
+            );
 
-                if (status) {
+            if (status) {
+                status.textContent =
+                    "❌ Voice output failed.";
+            }
+        };
 
-                    status.textContent =
-                        "✅ Ready for your next question.";
+        window.speechSynthesis.speak(speech);
+    };
 
-                }
-            };
-
-        speech.onerror =
-            function(error) {
-
-                console.error(
-                    "Speech Error:",
-                    error
-                );
-
-                const status =
-                    document.getElementById(
-                        "voiceAiStatus"
-                    );
-
-                if (status) {
-
-                    status.textContent =
-                        "❌ Voice output failed. Please check browser sound.";
-
-                }
-            };
-
-        window.speechSynthesis.speak(
-            speech
-        );
-    }
 
     const voices =
         window.speechSynthesis.getVoices();
@@ -4664,17 +4598,15 @@ function speakAIAnswer(text) {
 
         speakNow();
 
-    }
-    else {
+    } else {
 
         window.speechSynthesis.onvoiceschanged =
-            function() {
+            function () {
 
-                window.speechSynthesis
-                    .onvoiceschanged = null;
+                window.speechSynthesis.onvoiceschanged =
+                    null;
 
                 speakNow();
-
             };
     }
 }
@@ -4693,7 +4625,7 @@ function startVoiceAI() {
     if (!SpeechRecognition) {
 
         alert(
-            "Voice input is not supported in this browser. Please use Google Chrome."
+            "Voice input is not supported. Please use Google Chrome."
         );
 
         return;
@@ -4711,14 +4643,17 @@ function startVoiceAI() {
     voiceRecognition =
         new SpeechRecognition();
 
-    voiceRecognition.lang = "en-IN";
+    voiceRecognition.lang =
+        "en-IN";
 
-    voiceRecognition.continuous = false;
+    voiceRecognition.continuous =
+        false;
 
-    voiceRecognition.interimResults = false;
+    voiceRecognition.interimResults =
+        false;
 
-    voiceRecognition.maxAlternatives = 1;
-
+    voiceRecognition.maxAlternatives =
+        1;
 
     const questionInput =
         document.getElementById(
@@ -4730,16 +4665,28 @@ function startVoiceAI() {
             "voiceAiStatus"
         );
 
+    if (!questionInput || !status) {
+        return;
+    }
 
     status.textContent =
         "🎤 Listening... Please speak now.";
 
+    try {
 
-    voiceRecognition.start();
+        voiceRecognition.start();
+
+    } catch (error) {
+
+        console.error(
+            "Voice Start Error:",
+            error
+        );
+    }
 
 
     voiceRecognition.onresult =
-        function(event) {
+        function (event) {
 
             const transcript =
                 event.results[0][0].transcript;
@@ -4751,12 +4698,11 @@ function startVoiceAI() {
                 "✅ Voice captured. AI is answering...";
 
             sendVoiceAiQuestion();
-
         };
 
 
     voiceRecognition.onerror =
-        function(event) {
+        function (event) {
 
             console.error(
                 "Voice Recognition Error:",
@@ -4765,12 +4711,11 @@ function startVoiceAI() {
 
             status.textContent =
                 "❌ Voice input failed. Please try again.";
-
         };
 
 
     voiceRecognition.onend =
-        function() {
+        function () {
 
             if (
                 status.textContent.includes(
@@ -4778,13 +4723,9 @@ function startVoiceAI() {
                 )
             ) {
 
-                status.textContent =
-                    "";
-
+                status.textContent = "";
             }
-
         };
-
 }
 
 
@@ -4803,12 +4744,9 @@ function stopVoiceAI() {
         }
     }
 
-    if (
-        "speechSynthesis" in window
-    ) {
+    if ("speechSynthesis" in window) {
 
         window.speechSynthesis.cancel();
-
     }
 
     const status =
@@ -4816,14 +4754,16 @@ function stopVoiceAI() {
             "voiceAiStatus"
         );
 
-    status.textContent =
-        "⏹ Voice stopped.";
+    if (status) {
 
+        status.textContent =
+            "⏹ Voice stopped.";
+    }
 }
 
 
 /* =====================================================
-   🤖 SEND QUESTION TO EXISTING AI COPILOT
+   🤖 ASK AI
 ===================================================== */
 
 async function sendVoiceAiQuestion() {
@@ -4843,6 +4783,9 @@ async function sendVoiceAiQuestion() {
             "voiceAiStatus"
         );
 
+    if (!input || !answerBox || !status) {
+        return;
+    }
 
     const question =
         input.value.trim();
@@ -4868,7 +4811,6 @@ async function sendVoiceAiQuestion() {
 
     answerBox.innerHTML =
         '<span class="loading">🤖 AI is thinking...</span>';
-
 
     status.textContent =
         "🧠 AI is analyzing the selected business...";
@@ -4907,7 +4849,6 @@ async function sendVoiceAiQuestion() {
                 data.message ||
                 "AI response failed"
             );
-
         }
 
 
@@ -4916,149 +4857,35 @@ async function sendVoiceAiQuestion() {
             "No answer received.";
 
 
-        answerBox.innerHTML = `
-
-            <strong>
-                🤖 AI Business Assistant
-            </strong>
-
-            <br><br>
-
-            ${escapeHtml(answer)
-                .replace(/\n/g, "<br>")}
-
-        `;
+        answerBox.innerHTML =
+            `<strong>🤖 AI Business Assistant</strong>
+             <br><br>
+             ${escapeHtml(answer).replace(/\n/g, "<br>")}`;
 
 
-        status.textContent = "🔊 AI is speaking...";
-
-if ("speechSynthesis" in window) {
-
-    window.speechSynthesis.cancel();
-
-    const speakAnswer = function () {
-
-        const speech =
-            new SpeechSynthesisUtterance(answer);
-
-        speech.lang = "en-IN";
-        speech.rate = 1;
-        speech.pitch = 1;
-        speech.volume = 1;
-
-        const voices =
-            window.speechSynthesis.getVoices();
-
-        const indianVoice =
-            voices.find(function (voice) {
-                return voice.lang === "en-IN";
-            });
-
-        const englishVoice =
-            voices.find(function (voice) {
-                return voice.lang &&
-                       voice.lang
-                           .toLowerCase()
-                           .startsWith("en");
-            });
-
-        if (indianVoice) {
-            speech.voice = indianVoice;
-        }
-        else if (englishVoice) {
-            speech.voice = englishVoice;
-        }
-
-        speech.onstart = function () {
-
-            status.textContent =
-                "🔊 AI is speaking...";
-
-        };
-
-        speech.onend = function () {
-
-            status.textContent =
-                "✅ Ready for your next question.";
-
-        };
-
-        speech.onerror = function (error) {
-
-            console.error(
-                "Speech Error:",
-                error
-            );
-
-            status.textContent =
-                "❌ Voice output failed. Please check browser sound.";
-
-        };
-
-        window.speechSynthesis.speak(
-            speech
-        );
-    };
-
-    const voices =
-        window.speechSynthesis.getVoices();
-
-    if (voices.length > 0) {
-
-        speakAnswer();
-
-    }
-    else {
-
-        window.speechSynthesis.onvoiceschanged =
-            function () {
-
-                window.speechSynthesis
-                    .onvoiceschanged = null;
-
-                speakAnswer();
-            };
-    }
-
-}
-else {
-
-    status.textContent =
-        "❌ Your browser does not support voice output.";
-
-}
+        status.textContent =
+            "🔊 AI is speaking...";
 
 
-    }
+        speakAIAnswer(answer);
 
-    catch (error) {
+
+    } catch (error) {
 
         console.error(
             "Voice AI Error:",
             error
         );
 
-
-        answerBox.innerHTML = `
-
-            <span class="error">
-
+        answerBox.innerHTML =
+            `<span class="error">
                 ❌ AI Error:
-
-                ${escapeHtml(
-                    error.message
-                )}
-
-            </span>
-
-        `;
-
+                ${escapeHtml(error.message)}
+             </span>`;
 
         status.textContent =
             "❌ Something went wrong.";
-
     }
-
 }
 
 
@@ -5066,26 +4893,29 @@ else {
    ⌨️ ENTER KEY
 ===================================================== */
 
-document
-    .getElementById("voiceAiQuestion")
-    .addEventListener(
-        "keydown",
-        function(event) {
+const voiceQuestion =
+    document.getElementById(
+        "voiceAiQuestion"
+    );
 
-            if (
-                event.key === "Enter"
-            ) {
+if (voiceQuestion) {
+
+    voiceQuestion.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Enter") {
 
                 event.preventDefault();
 
                 sendVoiceAiQuestion();
-
             }
-
         }
     );
+}
 
 </script>
+
 </body>
 
 </html>
