@@ -1395,21 +1395,6 @@ const analysis =
         );
 
 
-        if (
-            error.code === "ECONNREFUSED"
-        ) {
-
-            return res.status(503).json({
-
-                success: false,
-
-                message:
-                    "AI server is not running. Start Python AI server on port 8000."
-
-            });
-
-        }
-
 
         res.status(500).json({
 
@@ -2495,22 +2480,6 @@ router.get("/:id/agentic-report", async (req, res) => {
             "Agentic AI Report Error:",
             error
         );
-
-
-        if (
-            error.code === "ECONNREFUSED"
-        ) {
-
-            return res.status(503).json({
-
-                success: false,
-
-                message:
-                    "AI server is not running. Start Python AI server on port 8000."
-
-            });
-
-        }
 
 
         res.status(500).json({
