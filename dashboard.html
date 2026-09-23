@@ -2558,14 +2558,13 @@ async function runSimulation() {
 async function askCopilot() {
 
     const input =
-        document.getElementById(
-            "copilotQuestion"
-        );
+        document.getElementById("copilotQuestion");
 
     const answer =
-        document.getElementById(
-            "copilotAnswer"
-        );
+        document.getElementById("copilotAnswer");
+
+    const status =
+        document.getElementById("copilotVoiceStatus");
 
     const question =
         input.value.trim();
@@ -2582,8 +2581,25 @@ async function askCopilot() {
     }
 
 
+    if (!BUSINESS_ID) {
+
+        answer.innerHTML =
+            `<span class="error">
+                ❌ Please select a business first.
+            </span>`;
+
+        return;
+    }
+
+
     answer.innerHTML =
         '<span class="loading">⏳ AI is thinking...</span>';
+
+
+    if (status) {
+        status.textContent =
+            "🧠 AI is analyzing...";
+    }
 
 
     try {
@@ -2599,11 +2615,9 @@ async function askCopilot() {
                             "application/json"
                     },
 
-                    body:
-                        JSON.stringify({
-                            question:
-                                question
-                        })
+                    body: JSON.stringify({
+                        question: question
+                    })
                 }
             );
 
@@ -2625,6 +2639,11 @@ async function askCopilot() {
         }
 
 
+        const aiAnswer =
+            data.answer ||
+            "No answer received.";
+
+
         answer.innerHTML = `
 
             <strong>
@@ -2634,8 +2653,7 @@ async function askCopilot() {
             <br><br>
 
             ${escapeHtml(
-                data.answer ||
-                "No answer received."
+                aiAnswer
             ).replace(
                 /\n/g,
                 "<br>"
@@ -2643,14 +2661,22 @@ async function askCopilot() {
 
         `;
 
-    }
 
-    catch (error) {
+        if (status) {
+
+            status.textContent =
+                "✅ AI answer ready. Click Listen to hear it.";
+
+        }
+
+
+    } catch (error) {
 
         console.error(
             "Copilot Error:",
             error
         );
+
 
         answer.innerHTML =
             `<span class="error">
@@ -2658,10 +2684,342 @@ async function askCopilot() {
                 ${escapeHtml(error.message)}
             </span>`;
 
+
+        if (status) {
+
+            status.textContent =
+                "❌ AI response failed.";
+
+        }
+
     }
 
 }
+    /* ==========================================
+   🎤 COPILOT VOICE INPUT
+========================================== */
 
+let copilotVoiceRecognition = null;
+
+
+function startCopilotVoice() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    if (!SpeechRecognition) {
+
+        alert(
+            "Voice input is not supported. Please use Google Chrome."
+        );
+
+        return;
+    }
+
+
+    const input =
+        document.getElementById(
+            "copilotQuestion"
+        );
+
+    const status =
+        document.getElementById(
+            "copilotVoiceStatus"
+        );
+
+
+    if (!input) {
+        return;
+    }
+
+
+    if (copilotVoiceRecognition) {
+
+        try {
+            copilotVoiceRecognition.stop();
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+
+    copilotVoiceRecognition =
+        new SpeechRecognition();
+
+
+    copilotVoiceRecognition.lang =
+        "en-IN";
+
+    copilotVoiceRecognition.continuous =
+        false;
+
+    copilotVoiceRecognition.interimResults =
+        false;
+
+    copilotVoiceRecognition.maxAlternatives =
+        1;
+
+
+    if (status) {
+
+        status.textContent =
+            "🎤 Listening... Please speak now.";
+
+    }
+
+
+    copilotVoiceRecognition.onresult =
+        function(event) {
+
+            const transcript =
+                event.results[0][0].transcript;
+
+
+            input.value =
+                transcript;
+
+
+            if (status) {
+
+                status.textContent =
+                    "✅ Voice captured. AI is answering...";
+
+            }
+
+
+            askCopilot();
+
+        };
+
+
+    copilotVoiceRecognition.onerror =
+        function(event) {
+
+            console.error(
+                "Copilot Voice Error:",
+                event
+            );
+
+
+            if (status) {
+
+                status.textContent =
+                    "❌ Voice input failed. Please try again.";
+
+            }
+
+        };
+
+
+    copilotVoiceRecognition.onend =
+        function() {
+
+            if (
+                status &&
+                status.textContent.includes(
+                    "Listening"
+                )
+            ) {
+
+                status.textContent = "";
+
+            }
+
+        };
+
+
+    try {
+
+        copilotVoiceRecognition.start();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Copilot Voice Start Error:",
+            error
+        );
+
+    }
+
+}
+    /* ==========================================
+   🔊 LISTEN TO COPILOT ANSWER
+========================================== */
+
+function listenCopilotAnswer() {
+
+    const answerBox =
+        document.getElementById(
+            "copilotAnswer"
+        );
+
+    const status =
+        document.getElementById(
+            "copilotVoiceStatus"
+        );
+
+
+    if (!answerBox) {
+        return;
+    }
+
+
+    const text =
+        answerBox.innerText
+            .replace(
+                "🤖 AI Business Copilot",
+                ""
+            )
+            .trim();
+
+
+    if (!text) {
+
+        if (status) {
+
+            status.textContent =
+                "⚠️ No AI answer available to listen.";
+
+        }
+
+        return;
+    }
+
+
+    if (!("speechSynthesis" in window)) {
+
+        if (status) {
+
+            status.textContent =
+                "❌ Voice output is not supported in this browser.";
+
+        }
+
+        return;
+    }
+
+
+    window.speechSynthesis.cancel();
+
+
+    const speech =
+        new SpeechSynthesisUtterance(text);
+
+
+    speech.lang =
+        "en-IN";
+
+    speech.rate =
+        1;
+
+    speech.pitch =
+        1;
+
+    speech.volume =
+        1;
+
+
+    speech.onstart =
+        function() {
+
+            if (status) {
+
+                status.textContent =
+                    "🔊 AI is speaking...";
+
+            }
+
+        };
+
+
+    speech.onend =
+        function() {
+
+            if (status) {
+
+                status.textContent =
+                    "✅ Voice reply completed.";
+
+            }
+
+        };
+
+
+    speech.onerror =
+        function(error) {
+
+            console.error(
+                "Speech Error:",
+                error
+            );
+
+
+            if (status) {
+
+                status.textContent =
+                    "❌ Voice output failed.";
+
+            }
+
+        };
+
+
+    window.speechSynthesis.speak(
+        speech
+    );
+
+}
+    /* ==========================================
+   ⏹ STOP COPILOT VOICE
+========================================== */
+
+function stopCopilotVoice() {
+
+    if (copilotVoiceRecognition) {
+
+        try {
+
+            copilotVoiceRecognition.stop();
+
+        }
+
+        catch (error) {
+
+            console.log(error);
+
+        }
+
+    }
+
+
+    if (
+        "speechSynthesis" in window
+    ) {
+
+        window.speechSynthesis.cancel();
+
+    }
+
+
+    const status =
+        document.getElementById(
+            "copilotVoiceStatus"
+        );
+
+
+    if (status) {
+
+        status.textContent =
+            "⏹ Voice stopped.";
+
+    }
+
+}
 
 /* ==========================================
    EXPLAINABLE AI
