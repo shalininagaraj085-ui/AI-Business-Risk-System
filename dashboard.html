@@ -4505,7 +4505,7 @@ initializeDashboard();
 
 <script>
 
-let voiceRecognition = null;
+let businessVoiceRecognition = null;
 
 
 /* =====================================================
@@ -4632,29 +4632,29 @@ function startVoiceAI() {
         return;
     }
 
-    if (voiceRecognition) {
+    if (businessVoiceRecognition) {
 
-        try {
-            voiceRecognition.stop();
-        } catch (error) {
-            console.log(error);
-        }
+    try {
+        businessVoiceRecognition.stop();
+    } catch (error) {
+        console.log(error);
     }
+}
 
-    voiceRecognition =
-        new SpeechRecognition();
+businessVoiceRecognition =
+    new SpeechRecognition();
 
-    voiceRecognition.lang =
-        "en-IN";
+businessVoiceRecognition.lang =
+    "en-IN";
 
-    voiceRecognition.continuous =
-        false;
+    businessVoiceRecognition.continuous =
+    false;
 
-    voiceRecognition.interimResults =
-        false;
+businessVoiceRecognition.interimResults =
+    false;
 
-    voiceRecognition.maxAlternatives =
-        1;
+businessVoiceRecognition.maxAlternatives =
+    1;
 
     const questionInput =
         document.getElementById(
@@ -4675,18 +4675,18 @@ function startVoiceAI() {
 
     try {
 
-        voiceRecognition.start();
+    businessVoiceRecognition.start();
 
-    } catch (error) {
+} catch (error) {
 
-        console.error(
-            "Voice Start Error:",
-            error
-        );
-    }
+    console.error(
+        "Voice Start Error:",
+        error
+    );
+}
 
 
-    voiceRecognition.onresult =
+    businessVoiceRecognition.onresult =
         function (event) {
 
             const transcript =
@@ -4702,7 +4702,7 @@ function startVoiceAI() {
         };
 
 
-    voiceRecognition.onerror =
+    businessVoiceRecognition.onerror =
         function (event) {
 
             console.error(
@@ -4715,7 +4715,7 @@ function startVoiceAI() {
         };
 
 
-    voiceRecognition.onend =
+    businessVoiceRecognition.onend =
         function () {
 
             if (
@@ -4736,14 +4736,14 @@ function startVoiceAI() {
 
 function stopVoiceAI() {
 
-    if (voiceRecognition) {
+    if (businessVoiceRecognition) {
 
-        try {
-            voiceRecognition.stop();
-        } catch (error) {
-            console.log(error);
-        }
+    try {
+        businessVoiceRecognition.stop();
+    } catch (error) {
+        console.log(error);
     }
+}
 
     if ("speechSynthesis" in window) {
 
