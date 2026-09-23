@@ -1,13 +1,10 @@
 const express = require("express");
-const axios = require("axios");
+
 const Business = require("./businessModel");
 const { calculateRisk } = require("./riskEngine");
 
 const router = express.Router();
 
-const AI_API_URL =
-    process.env.AI_API_URL ||
-    "https://ai-business-risk-python.onrender.com/api/risk/analyze";
 
 // =====================================================
 // AI BUSINESS COPILOT
