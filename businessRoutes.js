@@ -1320,9 +1320,8 @@ router.post("/:id/analyze-risk", async (req, res) => {
 
                 aiData,
 
-                {
-                    timeout: 10000
-                }
+                
+                { timeout: 60000 }
 
             );
 
@@ -2182,33 +2181,37 @@ router.get("/:id/recommendations", async (req, res) => {
 
 
         const response =
-            await axios.post(
+    await axios.post(
 
-                AI_API_URL,
+        AI_API_URL,
 
-                {
+        {
 
-                    businessName:
-                        business.businessName,
+            businessName:
+                business.businessName,
 
-                    category:
-                        business.category,
+            category:
+                business.category,
 
-                    location:
-                        business.location,
+            location:
+                business.location,
 
-                    monthlyRevenue:
-                        revenue,
+            monthlyRevenue:
+                revenue,
 
-                    monthlyExpenses:
-                        expenses,
+            monthlyExpenses:
+                expenses,
 
-                    monthlyProfit:
-                        revenue - expenses
+            monthlyProfit:
+                revenue - expenses
 
-                }
+        },
 
-            );
+        {
+            timeout: 60000
+        }
+
+    );
 
 
         return res.json({
@@ -2314,17 +2317,17 @@ router.get("/:id/agentic-report", async (req, res) => {
 
 
         const aiResponse =
-            await axios.post(
+    await axios.post(
 
-                AI_API_URL,
+        AI_API_URL,
 
-                aiData,
+        aiData,
 
-                {
-                    timeout: 10000
-                }
+        {
+            timeout: 60000
+        }
 
-            );
+    );
 
 
         const analysis =
