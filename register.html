@@ -3,138 +3,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - AI Business Risk</title>
+
+    <title>Register | AI Business Risk System</title>
 
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0f172a, #1e3a8a);
+            font-family: Arial, Helvetica, sans-serif;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.35), transparent 30%),
+                radial-gradient(circle at 85% 80%, rgba(124, 58, 237, 0.30), transparent 30%),
+                linear-gradient(135deg, #020617, #0f172a, #172554);
             color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
         }
 
-        .register-box {
-            width: 400px;
-            background: white;
-            color: #111827;
-            padding: 35px;
-            border-radius: 15px;
+        .page {
+            width: 100%;
+            max-width: 1050px;
+            min-height: 650px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: rgba(15, 23, 42, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(18px);
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #1e3a8a;
+        /* LEFT SIDE */
+
+        .left {
+            padding: 55px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(37, 99, 235, 0.22),
+                    rgba(30, 41, 59, 0.15)
+                );
         }
 
-        label {
-            display: block;
-            margin-top: 15px;
-            margin-bottom: 6px;
+        .logo {
+            font-size: 20px;
             font-weight: bold;
+            margin-bottom: 45px;
         }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
+        .logo span {
+            color: #60a5fa;
+        }
+
+        .left h1 {
+            font-size: 42px;
+            line-height: 1.15;
+            margin-bottom: 22px;
+        }
+
+        .left h1 span {
+            color: #60a5fa;
+        }
+
+        .left p {
+            color: #cbd5e1;
+            line-height: 1.8;
             font-size: 16px;
+            max-width: 440px;
         }
 
-        button {
+        .features {
+            margin-top: 35px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+            color: #e2e8f0;
+        }
+
+        .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(37, 99, 235, 0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+        }
+
+        /* RIGHT SIDE */
+
+        .right {
+            background: rgba(255, 255, 255, 0.97);
+            color: #0f172a;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .right h2 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 17px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .form-group input {
             width: 100%;
-            margin-top: 25px;
-            padding: 13px;
+            padding: 14px 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .register-button {
+            width: 100%;
             border: none;
-            border-radius: 8px;
-            background: #2563eb;
+            padding: 15px;
+            margin-top: 8px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
+            transition: 0.2s;
         }
 
-        button:hover {
-            background: #1d4ed8;
+        .register-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
         }
 
         .message {
             margin-top: 15px;
             text-align: center;
+            font-size: 14px;
             font-weight: bold;
         }
 
         .home-link {
-            display: block;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 22px;
             color: #2563eb;
             text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .home-link:hover {
+            text-decoration: underline;
+        }
+
+        .security {
+            margin-top: 20px;
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 800px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .page {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+            }
+
+            .left {
+                padding: 35px;
+            }
+
+            .left h1 {
+                font-size: 32px;
+            }
+
+            .features {
+                margin-top: 25px;
+            }
+
+            .right {
+                padding: 35px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="register-box">
+    <div class="page">
 
-        <h1>Create Account</h1>
+        <!-- LEFT SIDE -->
 
-        <form id="registerForm">
+        <section class="left">
 
-            <label for="name">Name</label>
-            <input
-                type="text"
-                id="name"
-                placeholder="Enter your name"
-                required
+            <div class="logo">
+                🤖 <span>AI</span> Business Risk System
+            </div>
+
+            <h1>
+                Build a Smarter
+                <span>Business Future</span>
+            </h1>
+
+            <p>
+                Create your account and use AI-powered business
+                risk analysis to identify financial risks, receive
+                early warnings and make intelligent decisions.
+            </p>
+
+            <div class="features">
+
+                <div class="feature">
+                    <div class="icon">📊</div>
+                    <div>AI-Powered Risk Analysis</div>
+                </div>
+
+                <div class="feature">
+                    <div class="icon">⚠️</div>
+                    <div>Early Risk Warning</div>
+                </div>
+
+                <div class="feature">
+                    <div class="icon">🔮</div>
+                    <div>Future Risk Prediction</div>
+                </div>
+
+                <div class="feature">
+                    <div class="icon">🤖</div>
+                    <div>Intelligent Recommendations</div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- RIGHT SIDE -->
+
+        <section class="right">
+
+            <h2>Create Account</h2>
+
+            <p class="subtitle">
+                Register to access the AI Business Risk System
+            </p>
+
+            <form id="registerForm">
+
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        placeholder="Enter your full name"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Create a password"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="confirmPassword">
+                        Confirm Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        placeholder="Confirm your password"
+                        required
+                    >
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="register-button"
+                >
+                    Create Account
+                </button>
+
+                <div
+                    class="message"
+                    id="message"
+                ></div>
+
+            </form>
+
+
+            <a
+                href="index.html"
+                class="home-link"
             >
+                ← Back to Home
+            </a>
 
-            <label for="email">Email</label>
-            <input
-                type="email"
-                id="email"
-                placeholder="Enter your email"
-                required
-            >
+            <div class="security">
+                🔒 Your account information is securely handled.
+            </div>
 
-            <label for="password">Password</label>
-            <input
-                type="password"
-                id="password"
-                placeholder="Enter your password"
-                required
-            >
-
-            <label for="confirmPassword">Confirm Password</label>
-            <input
-                type="password"
-                id="confirmPassword"
-                placeholder="Confirm your password"
-                required
-            >
-
-            <button type="submit">
-                Register
-            </button>
-
-            <div class="message" id="message"></div>
-
-        </form>
-
-        <a href="index.html" class="home-link">
-            ← Back to Home
-        </a>
+        </section>
 
     </div>
 
