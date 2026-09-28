@@ -4137,7 +4137,6 @@ async function loadBusinesses() {
 
 }
 
-
 /* ==========================================
    SEARCH BUSINESS
 ========================================== */
@@ -4199,9 +4198,7 @@ function filterBusinesses() {
         });
 
 
-    if (
-        matches.length === 0
-    ) {
+    if (matches.length === 0) {
 
         resultsBox.innerHTML =
             query
@@ -4261,6 +4258,17 @@ function filterBusinesses() {
 
                     📍 ${location}
 
+                    <br>
+
+                    <button
+                        type="button"
+                        class="delete-business-button"
+                        onclick="event.stopPropagation(); deleteBusiness('${id}', '${name}')">
+
+                        🗑 Delete Business
+
+                    </button>
+
                 </div>
 
             `;
@@ -4268,7 +4276,162 @@ function filterBusinesses() {
         }).join("");
 
 }
+/* ==========================================
+   DELETE BUSINESS
+========================================== */
 
+async function deleteBusiness(id, name) {
+
+    if (!id) {
+        return;
+    }
+
+
+    const confirmed =
+        confirm(
+            `Are you sure you want to delete "${name}"?`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Failed to delete business"
+            );
+
+        }
+
+
+        alert(
+            `✅ ${name} deleted successfully.`
+        );
+
+
+        const wasSelected =
+            BUSINESS_ID === id;
+
+
+        if (wasSelected) {
+
+            BUSINESS_ID = "";
+
+            localStorage.removeItem(
+                "selectedBusinessId"
+            );
+
+        }
+
+
+        await loadBusinesses();
+
+
+        if (allBusinesses.length > 0) {
+
+            if (!BUSINESS_ID) {
+
+                BUSINESS_ID =
+                    allBusinesses[0]._id;
+
+                localStorage.setItem(
+                    "selectedBusinessId",
+                    BUSINESS_ID
+                );
+
+            }
+
+
+            const selector =
+                document.getElementById(
+                    "businessSelector"
+                );
+
+
+            if (selector) {
+
+                selector.value =
+                    BUSINESS_ID;
+
+            }
+
+
+            if (wasSelected) {
+
+                resetRiskDisplays();
+
+                await loadBusiness();
+
+                await analyzeRisk();
+
+            }
+
+        } else {
+
+            BUSINESS_ID = "";
+
+            localStorage.removeItem(
+                "selectedBusinessId"
+            );
+
+            resetRiskDisplays();
+
+            document.getElementById(
+                "businessName"
+            ).textContent =
+                "Select Business";
+
+            document.getElementById(
+                "businessCategory"
+            ).textContent =
+                "-";
+
+            document.getElementById(
+                "businessLocation"
+            ).textContent =
+                "-";
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Delete Business Error:",
+            error
+        );
+
+
+        alert(
+            `❌ Delete failed: ${error.message}`
+        );
+
+    }
+
+}
 
 /* ==========================================
    SELECT BUSINESS
