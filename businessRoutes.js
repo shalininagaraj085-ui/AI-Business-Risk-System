@@ -3,6 +3,12 @@ const express = require("express");
 const Business = require("./businessModel");
 const { calculateRisk } = require("./riskEngine");
 
+const OpenAI = require("openai");
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
+
 const router = express.Router();
 
 
@@ -39,10 +45,10 @@ router.post("/:id/copilot", async (req, res) => {
         }
 
         const answer =
-            generateCopilotAnswer(
-                question,
-                business
-            );
+    await generateCopilotAnswer(
+        question,
+        business
+    );
 
         res.json({
 
@@ -79,7 +85,7 @@ router.post("/:id/copilot", async (req, res) => {
 // SMART UNIVERSAL AI BUSINESS COPILOT
 // =====================================================
 
-function generateCopilotAnswer(question, business) {
+async function generateCopilotAnswer(question, business) {
 
     const originalQuestion =
         String(question || "").trim();
@@ -779,41 +785,92 @@ ${financialStatus}
     }
 
 
-    // =================================================
-    // 16. UNKNOWN QUESTION
-    // =================================================
-    // Instead of giving the same generic answer,
-    // clearly tell the user that this exact question
-    // is outside the currently available business data.
+   // =================================================
+// 16. AI FALLBACK FOR NATURAL LANGUAGE QUESTIONS
+// =================================================
+
+try {
+
+    const aiResponse =
+        await openai.responses.create({
+
+            model: "gpt-5.6-luna",
+
+            instructions: `
+You are an AI Business Copilot.
+
+Answer the user's question using the selected business data below.
+
+Rules:
+- Understand natural language and different ways of asking the same question.
+- Answer business-related questions clearly and directly.
+- Use only the supplied business data.
+- Do not invent missing facts.
+- Calculate profit, loss, expense ratio and profit margin when needed.
+- Explain current risk and future risk using the supplied data.
+- Give simple, useful answers suitable for a college project demo.
+- If the requested information is not available in the supplied data, say so clearly.
+            `,
+
+            input: `
+Selected Business:
+${businessName}
+
+Category:
+${category}
+
+Location:
+${location}
+
+Monthly Revenue:
+₹${revenue.toLocaleString("en-IN")}
+
+Monthly Expenses:
+₹${expenses.toLocaleString("en-IN")}
+
+Estimated Profit:
+₹${profit.toLocaleString("en-IN")}
+
+Expense Ratio:
+${expenseRatio.toFixed(2)}%
+
+Profit Margin:
+${profitMargin.toFixed(2)}%
+
+Current Risk Score:
+${riskScore}
+
+Current Risk Level:
+${riskLevel}
+
+AI Prediction:
+${prediction}
+
+User Question:
+${originalQuestion}
+            `
+        });
+
+
+    return (
+        aiResponse.output_text ||
+        "I could not generate an answer from the available business data."
+    );
+
+} catch (error) {
+
+    console.error(
+        "AI Copilot Fallback Error:",
+        error
+    );
 
     return `
 🤖 AI Business Assistant
 
-Your Question:
-${originalQuestion}
-
-I can currently analyze this selected business using its saved data.
-
-Available information:
-• Business Name
-• Category
-• Location
-• Revenue
-• Expenses
-• Estimated Profit
-• Profit Margin
-• Current Risk
-• Risk Level
-• Future Risk Prediction
-• Business Problems
-• AI Recommendations
-
-For questions outside these areas, additional business data or a dedicated AI model would be required.
-
-Selected Business:
-${businessName}
+I could not generate an AI answer right now.
+Please ask a question related to the selected business.
     `.trim();
-}
+} 
 
 
 // =====================================================
