@@ -86,791 +86,124 @@ router.post("/:id/copilot", async (req, res) => {
 // =====================================================
 
 async function generateCopilotAnswer(question, business) {
-
-    const originalQuestion =
-        String(question || "").trim();
-
-    const q =
-        originalQuestion
-            .toLowerCase()
-            .replace(/[?!.,'"]/g, " ")
-            .replace(/\s+/g, " ")
-            .trim();
-
-
-    // =================================================
-    // BUSINESS DATA
-    // =================================================
-
-    const businessName =
-        business.businessName || "Selected Business";
-
-    const category =
-        business.category || "Not available";
-
-    const location =
-        business.location || "Not available";
-
-    const revenue =
-        Number(business.monthlyRevenue || 0);
-
-    const expenses =
-        Number(business.monthlyExpenses || 0);
-
-    const profit =
-        revenue - expenses;
-
-    const expenseRatio =
-        revenue > 0
-            ? (expenses / revenue) * 100
-            : 0;
-
-    const profitMargin =
-        revenue > 0
-            ? (profit / revenue) * 100
-            : 0;
-
-    const riskScore =
-        Number(business.overallRiskScore || 0);
-
-    const riskLevel =
-        business.riskLevel || "Not analyzed";
-
-    const prediction =
-        business.aiPrediction ||
-        "No prediction available.";
-
-
-    // =================================================
-    // FINANCIAL STATUS
-    // =================================================
-
-    let financialStatus;
-
-    if (revenue <= 0) {
-
-        financialStatus =
-            "Valid revenue data is not available.";
-
-    } else if (expenses > revenue) {
-
-        financialStatus =
-            "Expenses are higher than revenue, resulting in an estimated loss.";
-
-    } else if (expenseRatio >= 80) {
-
-        financialStatus =
-            "The business is profitable, but expenses are consuming a very high portion of revenue.";
-
-    } else if (expenseRatio >= 60) {
-
-        financialStatus =
-            "The business is profitable, but expenses require regular monitoring.";
-
-    } else {
-
-        financialStatus =
-            "Revenue is currently higher than expenses, producing a positive estimated profit.";
-
-    }
-
-
-    // =================================================
-    // 1. GREETING
-    // =================================================
-
-    if (
-        /^(hi|hello|hey|good morning|good afternoon|good evening)$/.test(q)
-    ) {
-
-        return `
-👋 Hello!
-
-I am your AI Business Assistant.
-
-Selected Business:
-${businessName}
-
-I can help you understand:
-
-• Current financial condition
-• Revenue
-• Expenses
-• Profit
-• Risk
-• Future risk
-• Business problems
-• Reasons behind risk
-• Recommendations
-• Business information
-
-Ask me any question about ${businessName}.
-        `.trim();
-    }
-
-
-    // =================================================
-    // 2. EXACT BUSINESS NAME
-    // =================================================
-
-    if (
-        q === "what is the business name" ||
-        q === "business name" ||
-        q === "name of business" ||
-        q === "what business is this"
-    ) {
-
-        return `
-🏢 Business Name
-
-${businessName}
-        `.trim();
-    }
-
-
-    // =================================================
-    // 3. CATEGORY
-    // =================================================
-
-    if (
-        q === "category" ||
-        q === "business category" ||
-        q === "what is the category" ||
-        q === "what type of business is this"
-    ) {
-
-        return `
-📂 Business Category
-
-${category}
-        `.trim();
-    }
-
-
-    // =================================================
-    // 4. LOCATION
-    // =================================================
-
-    if (
-        q === "location" ||
-        q === "business location" ||
-        q === "where is the business" ||
-        q === "where is this business located"
-    ) {
-
-        return `
-📍 Business Location
-
-${location}
-        `.trim();
-    }
-
-
-    // =================================================
-    // 5. REVENUE
-    // =================================================
-
-    if (
-        q.includes("monthly revenue") ||
-        q.includes("revenue") ||
-        q.includes("income") ||
-        q.includes("earnings") ||
-        q === "how much does the business earn"
-    ) {
-
-        return `
-💰 Revenue Analysis
-
-Business:
-${businessName}
-
-Monthly Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Monthly Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Estimated Monthly Profit:
-₹${profit.toLocaleString("en-IN")}
-
-Profit Margin:
-${profitMargin.toFixed(2)}%
-
-The revenue shown here comes from the latest saved business data.
-        `.trim();
-    }
-
-
-    // =================================================
-    // 6. EXPENSES
-    // =================================================
-
-    if (
-        q.includes("monthly expense") ||
-        q.includes("expenses") ||
-        q.includes("expense") ||
-        q.includes("cost") ||
-        q.includes("spending")
-    ) {
-
-        return `
-💸 Expense Analysis
-
-Business:
-${businessName}
-
-Monthly Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Monthly Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Expense Ratio:
-${expenseRatio.toFixed(2)}%
-
-Estimated Profit:
-₹${profit.toLocaleString("en-IN")}
-
-Assessment:
-${financialStatus}
-        `.trim();
-    }
-
-
-    // =================================================
-    // 7. PROFIT
-    // =================================================
-
-    if (
-        q.includes("profit") ||
-        q.includes("profitability") ||
-        q.includes("profit margin") ||
-        q.includes("loss")
-    ) {
-
-        let status;
-
-        if (profit > 0) {
-
-            status =
-                "The business currently has a positive estimated monthly profit.";
-
-        } else if (profit < 0) {
-
-            status =
-                "The business currently has an estimated monthly loss.";
-
-        } else {
-
-            status =
-                "Revenue and expenses are currently equal.";
-
-        }
-
-        return `
-📊 Profitability Analysis
-
-Business:
-${businessName}
-
-Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Estimated Profit:
-₹${profit.toLocaleString("en-IN")}
-
-Profit Margin:
-${profitMargin.toFixed(2)}%
-
-Status:
-${status}
-        `.trim();
-    }
-
-
-    // =================================================
-    // 8. RISK SCORE ONLY
-    // =================================================
-
-    if (
-        q.includes("risk score") ||
-        q === "risk"
-    ) {
-
-        return `
-⚠️ Current Risk
-
-Business:
-${businessName}
-
-Risk Score:
-${riskScore}
-
-Risk Level:
-${riskLevel}
-
-The risk score is based on the latest analyzed business data.
-        `.trim();
-    }
-
-
-    // =================================================
-    // 9. RISK LEVEL
-    // =================================================
-
-    if (
-        q.includes("risk level") ||
-        q.includes("how risky") ||
-        q.includes("is this business risky")
-    ) {
-
-        return `
-⚠️ Risk Level
-
-Business:
-${businessName}
-
-Current Risk Level:
-${riskLevel}
-
-Risk Score:
-${riskScore}
-
-AI Assessment:
-${getRiskExplanation(riskScore)}
-        `.trim();
-    }
-
-
-    // =================================================
-    // 10. PROBLEM / ERROR
-    // =================================================
-
-    if (
-        q.includes("problem") ||
-        q.includes("problems") ||
-        q.includes("issue") ||
-        q.includes("issues") ||
-        q.includes("error") ||
-        q.includes("what is wrong") ||
-        q.includes("what went wrong")
-    ) {
-
-        let problem;
-
-        if (revenue <= 0) {
-
-            problem =
-                "Valid revenue data is not available.";
-
-        } else if (expenses > revenue) {
-
-            problem =
-                "Expenses are higher than revenue, creating an estimated loss.";
-
-        } else if (expenseRatio >= 80) {
-
-            problem =
-                "Expenses are consuming a very high portion of revenue.";
-
-        } else if (expenseRatio >= 60) {
-
-            problem =
-                "Operating expenses are relatively high and should be monitored.";
-
-        } else {
-
-            problem =
-                "No major financial problem is visible from the current saved data.";
-
-        }
-
-        return `
-🚨 Business Problem Analysis
-
-Business:
-${businessName}
-
-Detected Problem:
-${problem}
-
-Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Estimated Profit:
-₹${profit.toLocaleString("en-IN")}
-
-Current Risk:
-${riskScore} — ${riskLevel}
-        `.trim();
-    }
-
-
-    // =================================================
-    // 11. WHY / REASON
-    // =================================================
-
-    if (
-        q.includes("why") ||
-        q.includes("reason") ||
-        q.includes("because") ||
-        q.includes("explain")
-    ) {
-
-        let reason;
-
-        if (revenue <= 0) {
-
-            reason =
-                "Revenue data is unavailable, so the financial condition cannot be evaluated reliably.";
-
-        } else if (expenses > revenue) {
-
-            reason =
-                "Expenses are higher than revenue, creating an estimated loss.";
-
-        } else if (expenseRatio >= 80) {
-
-            reason =
-                "Expenses consume a large portion of revenue, reducing the available profit margin.";
-
-        } else if (expenseRatio >= 60) {
-
-            reason =
-                "Expenses represent a significant portion of revenue.";
-
-        } else {
-
-            reason =
-                "Revenue is currently higher than expenses, resulting in a positive estimated profit.";
-
-        }
-
-        return `
-🧠 AI Explanation
-
-Business:
-${businessName}
-
-Why:
-${reason}
-
-Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Profit:
-₹${profit.toLocaleString("en-IN")}
-
-Risk:
-${riskScore} — ${riskLevel}
-        `.trim();
-    }
-
-
-    // =================================================
-    // 12. FUTURE / PREDICTION
-    // =================================================
-
-    if (
-        q.includes("future") ||
-        q.includes("predict") ||
-        q.includes("prediction") ||
-        q.includes("next month") ||
-        q.includes("upcoming") ||
-        q.includes("what will happen")
-    ) {
-
-        return `
-🔮 Future Business Risk Prediction
-
-Business:
-${businessName}
-
-Current Risk Score:
-${riskScore}
-
-Current Risk Level:
-${riskLevel}
-
-Current Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Current Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Current Profit:
-₹${profit.toLocaleString("en-IN")}
-
-AI Future Prediction:
-${prediction}
-
-This is an AI-based prediction using the currently saved business data. It is not a guaranteed future result.
-        `.trim();
-    }
-
-
-    // =================================================
-    // 13. RECOMMENDATION
-    // =================================================
-
-    if (
-        q.includes("recommend") ||
-        q.includes("suggest") ||
-        q.includes("advice") ||
-        q.includes("what should i do") ||
-        q.includes("what should we do") ||
-        q.includes("how can i improve") ||
-        q.includes("what action")
-    ) {
-
-        let recommendation;
-
-        if (revenue <= 0) {
-
-            recommendation =
-                "Enter valid revenue data so the AI can monitor the financial condition correctly.";
-
-        } else if (expenses > revenue) {
-
-            recommendation =
-                "Review expenses immediately, reduce unnecessary costs and work on improving revenue.";
-
-        } else if (expenseRatio >= 80) {
-
-            recommendation =
-                "Control unnecessary expenses and improve the revenue-to-expense gap.";
-
-        } else if (expenseRatio >= 60) {
-
-            recommendation =
-                "Continue monitoring expenses and protect the current profit margin.";
-
-        } else {
-
-            recommendation =
-                "Continue monitoring revenue and expenses and maintain the current financial gap.";
-
-        }
-
-        return `
-💡 AI Business Recommendation
-
-Business:
-${businessName}
-
-Recommended Action:
-${recommendation}
-
-Current Risk:
-${riskScore} — ${riskLevel}
-
-Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Estimated Profit:
-₹${profit.toLocaleString("en-IN")}
-        `.trim();
-    }
-
-
-    // =================================================
-    // 14. FINANCIAL CONDITION
-    // =================================================
-
-    if (
-        q.includes("financial condition") ||
-        q.includes("financial health") ||
-        q.includes("business health") ||
-        q.includes("overall condition") ||
-        q.includes("how is the business doing") ||
-        q.includes("business performance")
-    ) {
-
-        return `
-📈 Overall Business Condition
-
-Business:
-${businessName}
-
-Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Estimated Profit:
-₹${profit.toLocaleString("en-IN")}
-
-Expense Ratio:
-${expenseRatio.toFixed(2)}%
-
-Profit Margin:
-${profitMargin.toFixed(2)}%
-
-Risk:
-${riskScore} — ${riskLevel}
-
-AI Assessment:
-${financialStatus}
-
-AI Prediction:
-${prediction}
-        `.trim();
-    }
-
-
-    // =================================================
-    // 15. SUMMARY
-    // =================================================
-
-    if (
-        q.includes("summary") ||
-        q.includes("summarize") ||
-        q.includes("overview") ||
-        q.includes("complete details") ||
-        q.includes("all details") ||
-        q.includes("everything") ||
-        q.includes("tell me about this business") ||
-        q.includes("about this business")
-    ) {
-
-        return `
-🤖 AI Business Summary
-
-Business:
-${businessName}
-
-Category:
-${category}
-
-Location:
-${location}
-
-Monthly Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Monthly Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Estimated Monthly Profit:
-₹${profit.toLocaleString("en-IN")}
-
-Expense Ratio:
-${expenseRatio.toFixed(2)}%
-
-Profit Margin:
-${profitMargin.toFixed(2)}%
-
-Current Risk:
-${riskScore} — ${riskLevel}
-
-AI Prediction:
-${prediction}
-
-AI Assessment:
-${financialStatus}
-        `.trim();
-    }
-
-
-   // =================================================
-// 16. AI FALLBACK FOR NATURAL LANGUAGE QUESTIONS
-// =================================================
-
-try {
-
-    const aiResponse =
-        await openai.responses.create({
-
-            model: "gpt-5.6-luna",
-
-            instructions: `
-You are an AI Business Copilot.
-
-Answer the user's question using the selected business data below.
-
-Rules:
-- Understand natural language and different ways of asking the same question.
-- Answer business-related questions clearly and directly.
-- Use only the supplied business data.
-- Do not invent missing facts.
-- Calculate profit, loss, expense ratio and profit margin when needed.
-- Explain current risk and future risk using the supplied data.
-- Give simple, useful answers suitable for a college project demo.
-- If the requested information is not available in the supplied data, say so clearly.
-            `,
-
-            input: `
-Selected Business:
-${businessName}
-
-Category:
-${category}
-
-Location:
-${location}
-
-Monthly Revenue:
-₹${revenue.toLocaleString("en-IN")}
-
-Monthly Expenses:
-₹${expenses.toLocaleString("en-IN")}
-
-Estimated Profit:
-₹${profit.toLocaleString("en-IN")}
-
-Expense Ratio:
-${expenseRatio.toFixed(2)}%
-
-Profit Margin:
-${profitMargin.toFixed(2)}%
-
-Current Risk Score:
-${riskScore}
-
-Current Risk Level:
-${riskLevel}
-
-AI Prediction:
-${prediction}
+    try {
+        const originalQuestion = String(question || "").trim();
+
+        const revenue = Number(business.monthlyRevenue || 0);
+        const expenses = Number(business.monthlyExpenses || 0);
+
+        const profit = revenue - expenses;
+
+        const expenseRatio =
+            revenue > 0
+                ? (expenses / revenue) * 100
+                : 0;
+
+        const profitMargin =
+            revenue > 0
+                ? (profit / revenue) * 100
+                : 0;
+
+        // Get all available business data
+        const businessData =
+            business.toObject
+                ? business.toObject()
+                : { ...business };
+
+        // Remove internal MongoDB fields
+        delete businessData._id;
+        delete businessData.__v;
+        delete businessData.createdAt;
+        delete businessData.updatedAt;
+
+        // Add calculated financial information
+        businessData.calculatedMetrics = {
+            monthlyProfit: profit,
+            expenseRatio: Number(expenseRatio.toFixed(2)),
+            profitMargin: Number(profitMargin.toFixed(2))
+        };
+
+        const aiResponse =
+            await openai.responses.create({
+                model: "gpt-5.6-luna",
+
+                instructions: `
+You are an AI Business Copilot for a Business Risk Management System.
+
+Your job is to answer the user's question accurately using the selected business data.
+
+IMPORTANT RULES:
+
+1. Understand natural-language questions.
+2. Understand different ways of asking the same question.
+3. Use the selected business data whenever the question is related to that business.
+4. You may calculate values such as:
+   - profit
+   - loss
+   - expense ratio
+   - profit margin
+   - differences
+   - percentages
+5. Do NOT invent information.
+6. Do NOT assume missing values.
+7. If the requested information is not available in the business data, clearly say:
+   "That information is not available in the current business data."
+8. Explain risk score and risk level when the user asks about risk.
+9. Explain AI prediction when the user asks about future risk or prediction.
+10. If the user asks for recommendations, give practical recommendations based on the available data.
+11. If the user asks a comparison, compare only values that are actually available.
+12. If the user asks a question in Tamil or Tanglish, answer in the same language when possible.
+13. If the user asks a normal business question, answer directly without saying that you are an AI.
+14. Keep answers clear and suitable for a college project demonstration.
+15. Do not claim real-time information that is not present in the supplied data.
+16. Never make up customers, sales, inventory, suppliers, market conditions, dates, or financial values.
+
+Selected Business Data:
+${JSON.stringify(businessData, null, 2)}
 
 User Question:
 ${originalQuestion}
-            `
-        });
+                `,
 
+                input: originalQuestion
+            });
 
-    return (
-        aiResponse.output_text ||
-        "I could not generate an answer from the available business data."
-    );
+        const answer =
+            aiResponse.output_text?.trim();
 
-} catch (error) {
+        if (answer) {
+            return answer;
+        }
 
-    console.error(
-        "AI Copilot Fallback Error:",
-        error
-    );
+        return "I could not generate an answer from the available business data.";
 
-    return `
-🤖 AI Business Assistant
+    } catch (error) {
 
-I could not generate an AI answer right now.
-Please ask a question related to the selected business.
-    `.trim();
-} 
+        console.error(
+            "AI Copilot Error:",
+            error
+        );
+
+        if (
+            error.status === 429 ||
+            error.code === "insufficient_quota"
+        ) {
+            return `
+🤖 AI Business Copilot
+
+The OpenAI API quota or credits are unavailable right now.
+Please check your OpenAI API billing/credits and try again.
+            `.trim();
+        }
+
+        return `
+🤖 AI Business Copilot
+
+I could not generate the AI answer right now.
+Please try again.
+        `.trim();
+    }
+}
 
 
 // =====================================================
