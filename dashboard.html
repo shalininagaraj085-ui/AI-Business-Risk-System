@@ -1487,9 +1487,10 @@ async function analyzeRisk() {
         /* EARLY WARNING */
 
         updateEarlyWarnings(
-            analysis.detectedRisks || [],
-            analysis.prediction || analysis.aiPrediction || ""
-        );
+    analysis.detectedRisks || [],
+    analysis.prediction || analysis.aiPrediction || "",
+    score
+);
 
 
         /* CURRENT PROBLEMS */
@@ -1584,9 +1585,14 @@ async function analyzeRisk() {
    EARLY WARNING
 ========================================== */
 
+/* ==========================================
+   EARLY WARNING
+========================================== */
+
 function updateEarlyWarnings(
     risks,
-    prediction
+    prediction,
+    overallScore
 ) {
 
     const box =
@@ -1594,9 +1600,23 @@ function updateEarlyWarnings(
             "earlyWarnings"
         );
 
+
     if (!box) {
         return;
     }
+
+
+    const currentScore =
+        Number(
+            overallScore || 0
+        );
+
+
+    const currentLevel =
+        calculateRiskLevel(
+            currentScore
+        );
+
 
     if (
         !Array.isArray(risks) ||
@@ -1620,72 +1640,9 @@ function updateEarlyWarnings(
 
         `;
 
-    } else {
-
-        let html = "";
-
-        risks.forEach(function(risk) {
-
-            const type =
-                risk.type ||
-                risk.factor ||
-                "Business Risk";
-
-            const reason =
-                risk.reason ||
-                risk.message ||
-                "AI detected a possible risk indicator.";
-
-            /*
-             * Use the current overall risk level
-             * instead of the backend warning category.
-             */
-
-            const currentScore =
-                Number(
-                    risk.overallRiskScore ??
-                    0
-                );
-
-            const level =
-                calculateRiskLevel(
-                    currentScore
-                );
-
-            html += `
-
-                <div class="early-warning-card">
-
-                    ⚠️
-                    <strong>
-                        Early Warning: ${escapeHtml(type)}
-                    </strong>
-
-                    <br><br>
-
-                    <strong>
-                        Risk Level:
-                    </strong>
-
-                    ${escapeHtml(level)}
-
-                    <br>
-
-                    <strong>
-                        AI Warning:
-                    </strong>
-
-                    ${escapeHtml(reason)}
-
-                </div>
-
-            `;
-
-        });
-
         if (prediction) {
 
-            html += `
+            box.innerHTML += `
 
                 <div class="future-risk-card">
 
@@ -1704,18 +1661,95 @@ function updateEarlyWarnings(
 
         }
 
-        box.innerHTML = html;
-
         return;
     }
 
+
+    /* REMOVE DUPLICATE RISKS */
+
+    const uniqueRisks = [];
+
+    const seen = new Set();
+
+
+    risks.forEach(function(risk) {
+
+        const type =
+            risk.type ||
+            risk.factor ||
+            "Business Risk";
+
+
+        const reason =
+            risk.reason ||
+            risk.message ||
+            "AI detected a possible risk indicator.";
+
+
+        const key =
+            `${type}|${reason}`;
+
+
+        if (!seen.has(key)) {
+
+            seen.add(key);
+
+            uniqueRisks.push({
+                type: type,
+                reason: reason
+            });
+
+        }
+
+    });
+
+
+    let html = "";
+
+
+    uniqueRisks.forEach(function(risk) {
+
+        html += `
+
+            <div class="early-warning-card">
+
+                ⚠️
+
+                <strong>
+                    Early Warning: ${escapeHtml(risk.type)}
+                </strong>
+
+                <br><br>
+
+                <strong>
+                    Risk Level:
+                </strong>
+
+                ${escapeHtml(currentLevel)}
+
+                <br>
+
+                <strong>
+                    AI Warning:
+                </strong>
+
+                ${escapeHtml(risk.reason)}
+
+            </div>
+
+        `;
+
+    });
+
+
     if (prediction) {
 
-        box.innerHTML += `
+        html += `
 
             <div class="future-risk-card">
 
                 🔮
+
                 <strong>
                     Future Risk Signal
                 </strong>
@@ -1730,8 +1764,11 @@ function updateEarlyWarnings(
 
     }
 
-}
 
+    box.innerHTML =
+        html;
+
+}
 
 /* ==========================================
    FUTURE RISK
@@ -1835,6 +1872,10 @@ function updateFutureRisk(analysis) {
    CURRENT PROBLEMS
 ========================================== */
 
+/* ==========================================
+   CURRENT PROBLEMS
+========================================== */
+
 function updateCurrentProblems(
     analysis
 ) {
@@ -1844,9 +1885,11 @@ function updateCurrentProblems(
             "currentProblems"
         );
 
+
     if (!box) {
         return;
     }
+
 
     const risks =
         Array.isArray(
@@ -1855,6 +1898,7 @@ function updateCurrentProblems(
             ? analysis.detectedRisks
             : [];
 
+
     const currentRiskScore =
         Number(
             analysis?.overallRiskScore ??
@@ -1862,10 +1906,12 @@ function updateCurrentProblems(
             0
         );
 
+
     const currentRiskLevel =
         calculateRiskLevel(
             currentRiskScore
         );
+
 
     if (risks.length === 0) {
 
@@ -1889,25 +1935,55 @@ function updateCurrentProblems(
         return;
     }
 
+
+    /* REMOVE DUPLICATE PROBLEMS */
+
+    const uniqueRisks = [];
+
+    const seen = new Set();
+
+
+    risks.forEach(function(risk) {
+
+        const type =
+            risk.type ||
+            risk.factor ||
+            "Business Risk";
+
+
+        const reason =
+            risk.reason ||
+            risk.message ||
+            "Risk detected from current business data.";
+
+
+        const key =
+            `${type}|${reason}`;
+
+
+        if (!seen.has(key)) {
+
+            seen.add(key);
+
+            uniqueRisks.push({
+                type: type,
+                reason: reason
+            });
+
+        }
+
+    });
+
+
     box.innerHTML =
-        risks.map(function(risk) {
-
-            const type =
-                risk.type ||
-                risk.factor ||
-                "Business Risk";
-
-            const reason =
-                risk.reason ||
-                risk.message ||
-                "Risk detected from current business data.";
+        uniqueRisks.map(function(risk) {
 
             return `
 
                 <div class="problem-card">
 
                     <strong>
-                        🚨 ${escapeHtml(type)}
+                        🚨 ${escapeHtml(risk.type)}
                     </strong>
 
                     <br><br>
@@ -1924,15 +2000,15 @@ function updateCurrentProblems(
                         Problem:
                     </strong>
 
-                    ${escapeHtml(reason)}
+                    ${escapeHtml(risk.reason)}
 
                 </div>
 
             `;
 
         }).join("");
-}
 
+}
 
 /* ==========================================
    DETECTED RISKS
@@ -1947,6 +2023,12 @@ function updateDetectedRisks(
             "detectedRisks"
         );
 
+
+    if (!box) {
+        return;
+    }
+
+
     if (
         !Array.isArray(risks) ||
         risks.length === 0
@@ -1959,7 +2041,12 @@ function updateDetectedRisks(
     }
 
 
-    let html = "";
+    /* REMOVE DUPLICATE RISKS */
+
+    const uniqueRisks = [];
+
+    const seen = new Set();
+
 
     risks.forEach(function(risk) {
 
@@ -1968,22 +2055,62 @@ function updateDetectedRisks(
             risk.factor ||
             "Business Risk";
 
-        const level =
-            risk.level ||
-            risk.impact ||
-            "Medium";
 
         const reason =
             risk.reason ||
             risk.message ||
             "Risk detected by AI.";
 
+
+        const key =
+            `${type}|${reason}`;
+
+
+        if (!seen.has(key)) {
+
+            seen.add(key);
+
+            uniqueRisks.push({
+                type: type,
+                reason: reason
+            });
+
+        }
+
+    });
+
+
+    const selectedBusiness =
+        allBusinesses.find(function(item) {
+
+            return item._id === BUSINESS_ID;
+
+        });
+
+
+    const currentRiskScore =
+        Number(
+            selectedBusiness?.overallRiskScore || 0
+        );
+
+
+    const currentRiskLevel =
+        calculateRiskLevel(
+            currentRiskScore
+        );
+
+
+    let html = "";
+
+
+    uniqueRisks.forEach(function(risk) {
+
         html += `
 
             <div class="risk-card">
 
                 <strong>
-                    🚨 ${escapeHtml(type)}
+                    🚨 ${escapeHtml(risk.type)}
                 </strong>
 
                 <br><br>
@@ -1992,7 +2119,7 @@ function updateDetectedRisks(
                     Risk Level:
                 </strong>
 
-                ${escapeHtml(level)}
+                ${escapeHtml(currentRiskLevel)}
 
                 <br>
 
@@ -2000,7 +2127,7 @@ function updateDetectedRisks(
                     Reason:
                 </strong>
 
-                ${escapeHtml(reason)}
+                ${escapeHtml(risk.reason)}
 
             </div>
 
@@ -2013,7 +2140,6 @@ function updateDetectedRisks(
         html;
 
 }
-
 
 /* ==========================================
    RECOMMENDATIONS
