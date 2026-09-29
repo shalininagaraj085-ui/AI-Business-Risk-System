@@ -1040,10 +1040,10 @@ business.riskLevel =
     analysis.riskLevel || "Not analyzed";
 
 business.futureRiskScore =
-    analysis.futureRiskScore || 0;
+    analysis.futureRisk?.score || 0;
 
 business.futureRiskLevel =
-    analysis.futureRiskLevel || "Not analyzed";
+    analysis.futureRisk?.riskLevel || "Not analyzed";
 
 business.aiPrediction =
     analysis.aiPrediction ||
