@@ -875,9 +875,17 @@
             </div>
 
 
-            <div class="input-group">
+            <div class="simulation-grid">
 
-        </div>
+    <div class="input-group">
+        ...
+    </div>
+
+    <div class="input-group">
+        ...
+    </div>
+
+</div>
 
 
         <button
@@ -1460,10 +1468,9 @@ async function analyzeRisk() {
 
         /* AI PREDICTION */
 
-        const prediction =
-            analysis.prediction ||
-            analysis.aiPrediction ||
-            "No future prediction available.";
+           const prediction =
+    analysis.futureRisk?.prediction ||
+    "No future prediction available.";
 
         document.getElementById(
             "aiPrediction"
@@ -1487,8 +1494,8 @@ async function analyzeRisk() {
         /* EARLY WARNING */
 
         updateEarlyWarnings(
-    analysis.detectedRisks || [],
-    analysis.prediction || analysis.aiPrediction || "",
+    analysis.earlyWarnings || analysis.detectedRisks || [],
+    analysis.futureRisk?.prediction || "",
     score
 );
 
@@ -1674,34 +1681,35 @@ function updateEarlyWarnings(
 
     risks.forEach(function(risk) {
 
-        const type =
-            risk.type ||
-            risk.factor ||
-            "Business Risk";
+    const type =
+        typeof risk === "string"
+            ? "Financial Risk"
+            : risk.type ||
+              risk.factor ||
+              "Business Risk";
 
+    const reason =
+        typeof risk === "string"
+            ? risk
+            : risk.reason ||
+              risk.message ||
+              "Risk detected by AI.";
 
-        const reason =
-            risk.reason ||
-            risk.message ||
-            "AI detected a possible risk indicator.";
+    const key =
+        `${type}|${reason}`;
 
+    if (!seen.has(key)) {
 
-        const key =
-            `${type}|${reason}`;
+        seen.add(key);
 
+        uniqueRisks.push({
+            type: type,
+            reason: reason
+        });
 
-        if (!seen.has(key)) {
+    }
 
-            seen.add(key);
-
-            uniqueRisks.push({
-                type: type,
-                reason: reason
-            });
-
-        }
-
-    });
+});
 
 
     let html = "";
