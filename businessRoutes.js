@@ -3,12 +3,6 @@ const express = require("express");
 const Business = require("./businessModel");
 const { calculateRisk } = require("./riskEngine");
 
-const OpenAI = require("openai");
-
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-});
-
 const router = express.Router();
 
 
@@ -82,127 +76,459 @@ router.post("/:id/copilot", async (req, res) => {
 });
 
 // =====================================================
-// SMART UNIVERSAL AI BUSINESS COPILOT
+// SMART FREE BUSINESS COPILOT
 // =====================================================
 
-async function generateCopilotAnswer(question, business) {
-    try {
-        const originalQuestion = String(question || "").trim();
+function generateCopilotAnswer(question, business) {
 
-        const revenue = Number(business.monthlyRevenue || 0);
-        const expenses = Number(business.monthlyExpenses || 0);
+    const q = String(question || "").trim().toLowerCase();
 
-        const profit = revenue - expenses;
+    // -------------------------------------------------
+    // Business Data
+    // -------------------------------------------------
 
-        const expenseRatio =
-            revenue > 0
-                ? (expenses / revenue) * 100
-                : 0;
+    const businessName =
+        business.businessName ||
+        business.name ||
+        "Selected Business";
 
-        const profitMargin =
-            revenue > 0
-                ? (profit / revenue) * 100
-                : 0;
+    const category =
+        business.category ||
+        "Not Available";
 
-        // Get all available business data
-        const businessData =
-            business.toObject
-                ? business.toObject()
-                : { ...business };
+    const location =
+        business.location ||
+        "Not Available";
 
-        // Remove internal MongoDB fields
-        delete businessData._id;
-        delete businessData.__v;
-        delete businessData.createdAt;
-        delete businessData.updatedAt;
+    const revenue =
+        Number(business.monthlyRevenue || 0);
 
-        // Add calculated financial information
-        businessData.calculatedMetrics = {
-            monthlyProfit: profit,
-            expenseRatio: Number(expenseRatio.toFixed(2)),
-            profitMargin: Number(profitMargin.toFixed(2))
-        };
+    const expenses =
+        Number(business.monthlyExpenses || 0);
 
-        const aiResponse =
-            await openai.responses.create({
-                model: "gpt-5.6-luna",
+    const profit = revenue - expenses;
 
-                instructions: `
-You are an AI Business Copilot for a Business Risk Management System.
+    const expenseRatio =
+        revenue > 0
+            ? (expenses / revenue) * 100
+            : 0;
 
-Your job is to answer the user's question accurately using the selected business data.
+    const profitMargin =
+        revenue > 0
+            ? (profit / revenue) * 100
+            : 0;
 
-IMPORTANT RULES:
 
-1. Understand natural-language questions.
-2. Understand different ways of asking the same question.
-3. Use the selected business data whenever the question is related to that business.
-4. You may calculate values such as:
-   - profit
-   - loss
-   - expense ratio
-   - profit margin
-   - differences
-   - percentages
-5. Do NOT invent information.
-6. Do NOT assume missing values.
-7. If the requested information is not available in the business data, clearly say:
-   "That information is not available in the current business data."
-8. Explain risk score and risk level when the user asks about risk.
-9. Explain AI prediction when the user asks about future risk or prediction.
-10. If the user asks for recommendations, give practical recommendations based on the available data.
-11. If the user asks a comparison, compare only values that are actually available.
-12. If the user asks a question in Tamil or Tanglish, answer in the same language when possible.
-13. If the user asks a normal business question, answer directly without saying that you are an AI.
-14. Keep answers clear and suitable for a college project demonstration.
-15. Do not claim real-time information that is not present in the supplied data.
-16. Never make up customers, sales, inventory, suppliers, market conditions, dates, or financial values.
+    // -------------------------------------------------
+    // Current Risk
+    // -------------------------------------------------
 
-Selected Business Data:
-${JSON.stringify(businessData, null, 2)}
-
-User Question:
-${originalQuestion}
-                `,
-
-                input: originalQuestion
-            });
-
-        const answer =
-            aiResponse.output_text?.trim();
-
-        if (answer) {
-            return answer;
-        }
-
-        return "I could not generate an answer from the available business data.";
-
-    } catch (error) {
-
-        console.error(
-            "AI Copilot Error:",
-            error
+    const riskScore =
+        Number(
+            business.overallRiskScore ??
+            business.riskScore ??
+            business.currentRiskScore ??
+            0
         );
 
-        if (
-            error.status === 429 ||
-            error.code === "insufficient_quota"
-        ) {
-            return `
-🤖 AI Business Copilot
+    const riskLevel =
+        business.riskLevel ||
+        business.currentRiskLevel ||
+        (
+            riskScore >= 75
+                ? "Critical"
+                : riskScore >= 50
+                    ? "High"
+                    : riskScore >= 25
+                        ? "Medium"
+                        : "Low"
+        );
 
-The OpenAI API quota or credits are unavailable right now.
-Please check your OpenAI API billing/credits and try again.
+
+    // -------------------------------------------------
+    // Future Risk
+    // -------------------------------------------------
+
+    const futureRiskScore =
+        Number(
+            business.futureRiskScore ??
+            business.predictedFutureRiskScore ??
+            0
+        );
+
+    const futureRiskLevel =
+        business.futureRiskLevel ||
+        (
+            futureRiskScore >= 75
+                ? "Critical"
+                : futureRiskScore >= 50
+                    ? "High"
+                    : futureRiskScore >= 25
+                        ? "Medium"
+                        : "Low"
+        );
+
+
+    // =================================================
+    // BUSINESS NAME
+    // =================================================
+
+    if (
+        q.includes("business name") ||
+        q.includes("company name") ||
+        q.includes("name of business") ||
+        q.includes("business peru") ||
+        q.includes("company peru")
+    ) {
+        return `
+🏢 Business Name
+
+${businessName}
+        `.trim();
+    }
+
+
+    // =================================================
+    // CATEGORY
+    // =================================================
+
+    if (
+        q.includes("category") ||
+        q.includes("business type") ||
+        q.includes("type of business")
+    ) {
+        return `
+📂 Business Category
+
+${category}
+        `.trim();
+    }
+
+
+    // =================================================
+    // LOCATION
+    // =================================================
+
+    if (
+        q.includes("location") ||
+        q.includes("where is") ||
+        q.includes("where located") ||
+        q.includes("place")
+    ) {
+        return `
+📍 Business Location
+
+${location}
+        `.trim();
+    }
+
+
+    // =================================================
+    // REVENUE
+    // =================================================
+
+    if (
+        q.includes("revenue") ||
+        q.includes("income") ||
+        q.includes("sales") ||
+        q.includes("varumanam") ||
+        q.includes("varavu") ||
+        q.includes("revenue evlo") ||
+        q.includes("income evlo")
+    ) {
+        return `
+💰 Monthly Revenue
+
+🏢 Business: ${businessName}
+
+💰 Revenue: ₹${revenue.toLocaleString("en-IN")}
+        `.trim();
+    }
+
+
+    // =================================================
+    // EXPENSE
+    // =================================================
+
+    if (
+        q.includes("expense") ||
+        q.includes("expenses") ||
+        q.includes("cost") ||
+        q.includes("selavu") ||
+        q.includes("selavu evlo") ||
+        q.includes("expense evlo")
+    ) {
+        return `
+💸 Monthly Expenses
+
+🏢 Business: ${businessName}
+
+💸 Expenses: ₹${expenses.toLocaleString("en-IN")}
+
+📊 Expense Ratio: ${expenseRatio.toFixed(2)}%
+        `.trim();
+    }
+
+
+    // =================================================
+    // PROFIT / LOSS
+    // =================================================
+
+    if (
+        q.includes("profit") ||
+        q.includes("loss") ||
+        q.includes("earn") ||
+        q.includes("labam") ||
+        q.includes("nashtam")
+    ) {
+
+        if (profit >= 0) {
+
+            return `
+📈 Profit Analysis
+
+🏢 Business: ${businessName}
+
+💰 Revenue: ₹${revenue.toLocaleString("en-IN")}
+
+💸 Expenses: ₹${expenses.toLocaleString("en-IN")}
+
+📈 Monthly Profit: ₹${profit.toLocaleString("en-IN")}
+
+📊 Profit Margin: ${profitMargin.toFixed(2)}%
+
+✅ The business is currently operating with a profit.
             `.trim();
+
         }
 
         return `
-🤖 AI Business Copilot
+📉 Loss Analysis
 
-I could not generate the AI answer right now.
-Please try again.
+🏢 Business: ${businessName}
+
+💰 Revenue: ₹${revenue.toLocaleString("en-IN")}
+
+💸 Expenses: ₹${expenses.toLocaleString("en-IN")}
+
+📉 Monthly Loss: ₹${Math.abs(profit).toLocaleString("en-IN")}
+
+📊 Profit Margin: ${profitMargin.toFixed(2)}%
+
+⚠️ The business is currently operating at a loss because expenses are higher than revenue.
         `.trim();
     }
+
+
+    // =================================================
+    // RISK
+    // =================================================
+
+    if (
+        q.includes("risk") ||
+        q.includes("danger") ||
+        q.includes("risky") ||
+        q.includes("risk enna") ||
+        q.includes("risk epdi") ||
+        q.includes("risk eppadi")
+    ) {
+
+        return `
+⚠️ Business Risk Analysis
+
+🏢 Business: ${businessName}
+
+📊 Current Risk Score: ${riskScore}
+
+🚨 Risk Level: ${riskLevel}
+
+💰 Revenue: ₹${revenue.toLocaleString("en-IN")}
+
+💸 Expenses: ₹${expenses.toLocaleString("en-IN")}
+
+📈 Profit/Loss: ₹${profit.toLocaleString("en-IN")}
+
+${
+    expenses > revenue
+        ? "🚨 Main Risk: Expenses are higher than revenue."
+        : "✅ Revenue is currently higher than expenses."
+}
+        `.trim();
+    }
+
+
+    // =================================================
+    // FUTURE RISK
+    // =================================================
+
+    if (
+        q.includes("future") ||
+        q.includes("prediction") ||
+        q.includes("predict") ||
+        q.includes("forecast") ||
+        q.includes("future risk")
+    ) {
+
+        return `
+🔮 Future Risk Prediction
+
+🏢 Business: ${businessName}
+
+📊 Current Risk Score: ${riskScore}
+
+🚨 Current Risk Level: ${riskLevel}
+
+🔮 Future Risk Score: ${futureRiskScore}
+
+🚨 Future Risk Level: ${futureRiskLevel}
+
+${
+    futureRiskScore > riskScore
+        ? "⚠️ Future risk is higher than the current risk."
+        : futureRiskScore === riskScore
+            ? "ℹ️ Future risk score is currently the same as the current risk score."
+            : "✅ Future risk is not higher than the current risk."
+}
+        `.trim();
+    }
+
+
+    // =================================================
+    // RECOMMENDATIONS
+    // =================================================
+
+    if (
+        q.includes("recommend") ||
+        q.includes("suggest") ||
+        q.includes("advice") ||
+        q.includes("improve") ||
+        q.includes("reduce risk") ||
+        q.includes("what should") ||
+        q.includes("enna panna") ||
+        q.includes("enna seiyanum") ||
+        q.includes("epdi improve") ||
+        q.includes("epdi reduce")
+    ) {
+
+        const recommendations = [];
+
+        if (expenses > revenue) {
+
+            recommendations.push(
+                "💡 Reduce unnecessary operating expenses."
+            );
+
+            recommendations.push(
+                "💡 Increase revenue through additional sales opportunities."
+            );
+        }
+
+        if (profitMargin < 0) {
+
+            recommendations.push(
+                "💡 Improve profitability by controlling expenses and increasing revenue."
+            );
+        }
+
+        if (riskScore >= 50) {
+
+            recommendations.push(
+                "⚠️ Monitor business risk regularly."
+            );
+        }
+
+        if (recommendations.length === 0) {
+
+            recommendations.push(
+                "✅ Continue monitoring revenue, expenses and profitability."
+            );
+        }
+
+        return `
+💡 Business Recommendations
+
+${recommendations.join("\n")}
+        `.trim();
+    }
+
+
+    // =================================================
+    // FINANCIAL SUMMARY
+    // =================================================
+
+    if (
+        q.includes("summary") ||
+        q.includes("overview") ||
+        q.includes("financial") ||
+        q.includes("full details") ||
+        q.includes("all details")
+    ) {
+
+        return `
+📊 Business Financial Summary
+
+🏢 Business: ${businessName}
+
+📂 Category: ${category}
+
+📍 Location: ${location}
+
+💰 Revenue: ₹${revenue.toLocaleString("en-IN")}
+
+💸 Expenses: ₹${expenses.toLocaleString("en-IN")}
+
+${
+    profit >= 0
+        ? `📈 Profit: ₹${profit.toLocaleString("en-IN")}`
+        : `📉 Loss: ₹${Math.abs(profit).toLocaleString("en-IN")}`
+}
+
+📊 Expense Ratio: ${expenseRatio.toFixed(2)}%
+
+📈 Profit Margin: ${profitMargin.toFixed(2)}%
+
+⚠️ Current Risk Score: ${riskScore}
+
+🚨 Current Risk Level: ${riskLevel}
+
+🔮 Future Risk Score: ${futureRiskScore}
+
+🔮 Future Risk Level: ${futureRiskLevel}
+        `.trim();
+    }
+
+
+    // =================================================
+    // DEFAULT RESPONSE
+    // =================================================
+
+    return `
+🤖 AI Business Copilot
+
+I can answer questions using the available business data.
+
+🏢 Business: ${businessName}
+
+📂 Category: ${category}
+
+📍 Location: ${location}
+
+💰 Revenue: ₹${revenue.toLocaleString("en-IN")}
+
+💸 Expenses: ₹${expenses.toLocaleString("en-IN")}
+
+📈 Profit/Loss: ₹${profit.toLocaleString("en-IN")}
+
+📊 Risk Score: ${riskScore}
+
+🚨 Risk Level: ${riskLevel}
+
+🔮 Future Risk Score: ${futureRiskScore}
+
+🔮 Future Risk Level: ${futureRiskLevel}
+
+You can ask about revenue, expenses, profit, loss, risk, future risk, recommendations, financial summary, business name, category or location.
+    `.trim();
 }
 
 
@@ -708,17 +1034,23 @@ const analysis =
         // ---------------------------------------------
 
         business.overallRiskScore =
-            analysis.overallRiskScore || 0;
+    analysis.overallRiskScore || 0;
 
-        business.riskLevel =
-            analysis.riskLevel || "Not analyzed";
+business.riskLevel =
+    analysis.riskLevel || "Not analyzed";
 
-        business.aiPrediction =
-            analysis.aiPrediction ||
-            "No prediction available.";
+business.futureRiskScore =
+    analysis.futureRiskScore || 0;
 
-        business.lastRiskAnalysis =
-            new Date();
+business.futureRiskLevel =
+    analysis.futureRiskLevel || "Not analyzed";
+
+business.aiPrediction =
+    analysis.aiPrediction ||
+    "No prediction available.";
+
+business.lastRiskAnalysis =
+    new Date();
 
 
         await business.save();
@@ -759,13 +1091,19 @@ const analysis =
                     business.monthlyProfit,
 
                 riskScore:
-                    business.overallRiskScore,
+    business.overallRiskScore,
 
-                riskLevel:
-                    business.riskLevel,
+riskLevel:
+    business.riskLevel,
 
-                aiPrediction:
-                    business.aiPrediction,
+futureRiskScore:
+    business.futureRiskScore,
+
+futureRiskLevel:
+    business.futureRiskLevel,
+
+aiPrediction:
+    business.aiPrediction,
 
                 lastRiskAnalysis:
                     business.lastRiskAnalysis
