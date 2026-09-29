@@ -43,29 +43,40 @@ const businessSchema = new mongoose.Schema(
             default: 0
         },
 
-        // =========================
-        // AI RISK DATA
-        // =========================
-        overallRiskScore: {
-            type: Number,
-            default: 0
-        },
+    // =========================
+// AI RISK DATA
+// =========================
+overallRiskScore: {
+    type: Number,
+    default: 0
+},
 
-        riskLevel: {
-            type: String,
-            enum: ["Low", "Medium", "High", "Critical"],
-            default: "Low"
-        },
+riskLevel: {
+    type: String,
+    enum: ["Low", "Medium", "High", "Critical"],
+    default: "Low"
+},
 
-        aiPrediction: {
-            type: String,
-            default: "No prediction available"
-        },
+aiPrediction: {
+    type: String,
+    default: "No prediction available"
+},
 
-        lastRiskAnalysis: {
-            type: Date,
-            default: null
-        }
+futureRiskScore: {
+    type: Number,
+    default: 0
+},
+
+futureRiskLevel: {
+    type: String,
+    enum: ["Low", "Medium", "High", "Critical", "Not analyzed"],
+    default: "Not analyzed"
+},
+
+lastRiskAnalysis: {
+    type: Date,
+    default: null
+}
     },
     {
         timestamps: true
