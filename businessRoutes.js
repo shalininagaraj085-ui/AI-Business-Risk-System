@@ -2225,6 +2225,396 @@ router.get("/:id/agentic-report", async (req, res) => {
     }
 
 });
+// =====================================================
+// AI BUSINESS IMPACT SIMULATION ENGINE
+// =====================================================
 
+router.post("/:id/impact-simulation", async (req, res) => {
+
+    try {
+
+        const business =
+            await Business.findById(req.params.id);
+
+        if (!business) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message: "Business not found"
+
+            });
+
+        }
+
+
+        // -------------------------------------------------
+        // Current Business Data
+        // -------------------------------------------------
+
+        const currentRevenue =
+            Number(business.monthlyRevenue || 0);
+
+        const currentExpenses =
+            Number(business.monthlyExpenses || 0);
+
+        const currentProfit =
+            currentRevenue - currentExpenses;
+
+
+        if (currentRevenue <= 0) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Valid business revenue is required for impact simulation."
+
+            });
+
+        }
+
+
+        // -------------------------------------------------
+        // Scenario Inputs
+        // -------------------------------------------------
+
+        const revenueChange =
+            Number(req.body.revenueChangePercent || 0);
+
+        const expenseChange =
+            Number(req.body.expenseChangePercent || 0);
+
+
+        if (
+            !Number.isFinite(revenueChange) ||
+            !Number.isFinite(expenseChange)
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Revenue and expense change values must be valid numbers."
+
+            });
+
+        }
+
+
+        // -------------------------------------------------
+        // Simulated Business Condition
+        // -------------------------------------------------
+
+        const simulatedRevenue =
+            currentRevenue +
+            (currentRevenue * revenueChange / 100);
+
+        const simulatedExpenses =
+            currentExpenses +
+            (currentExpenses * expenseChange / 100);
+
+        const simulatedProfit =
+            simulatedRevenue - simulatedExpenses;
+
+
+        // -------------------------------------------------
+        // Current AI Risk
+        // -------------------------------------------------
+
+        const currentAnalysis =
+            calculateRisk({
+
+                businessName:
+                    business.businessName,
+
+                category:
+                    business.category,
+
+                location:
+                    business.location,
+
+                monthlyRevenue:
+                    currentRevenue,
+
+                monthlyExpenses:
+                    currentExpenses,
+
+                monthlyProfit:
+                    currentProfit
+
+            });
+
+
+        // -------------------------------------------------
+        // Simulated AI Risk
+        // -------------------------------------------------
+
+        const simulatedAnalysis =
+            calculateRisk({
+
+                businessName:
+                    business.businessName,
+
+                category:
+                    business.category,
+
+                location:
+                    business.location,
+
+                monthlyRevenue:
+                    simulatedRevenue,
+
+                monthlyExpenses:
+                    simulatedExpenses,
+
+                monthlyProfit:
+                    simulatedProfit
+
+            });
+
+
+        const currentRiskScore =
+            Number(
+                currentAnalysis.overallRiskScore || 0
+            );
+
+        const simulatedRiskScore =
+            Number(
+                simulatedAnalysis.overallRiskScore || 0
+            );
+
+
+        // -------------------------------------------------
+        // Impact Chain
+        // -------------------------------------------------
+
+        const impactChain = [];
+
+
+        if (revenueChange !== 0) {
+
+            impactChain.push({
+
+                stage: "Revenue Impact",
+
+                change:
+                    `${revenueChange}%`,
+
+                result:
+                    revenueChange < 0
+                        ? "Revenue decreases"
+                        : "Revenue increases"
+
+            });
+
+        }
+
+
+        if (expenseChange !== 0) {
+
+            impactChain.push({
+
+                stage: "Expense Impact",
+
+                change:
+                    `${expenseChange}%`,
+
+                result:
+                    expenseChange > 0
+                        ? "Operating expenses increase"
+                        : "Operating expenses decrease"
+
+            });
+
+        }
+
+
+        impactChain.push({
+
+            stage: "Profit Impact",
+
+            currentProfit:
+                currentProfit,
+
+            simulatedProfit:
+                simulatedProfit,
+
+            result:
+                simulatedProfit < currentProfit
+                    ? "Profit decreases"
+                    : simulatedProfit > currentProfit
+                        ? "Profit improves"
+                        : "Profit remains similar"
+
+        });
+
+
+        impactChain.push({
+
+            stage: "Risk Impact",
+
+            currentRiskScore:
+                currentRiskScore,
+
+            simulatedRiskScore:
+                simulatedRiskScore,
+
+            result:
+                simulatedRiskScore > currentRiskScore
+                    ? "Business risk increases"
+                    : simulatedRiskScore < currentRiskScore
+                        ? "Business risk decreases"
+                        : "Business risk remains similar"
+
+        });
+
+
+        // -------------------------------------------------
+        // Final Decision Impact
+        // -------------------------------------------------
+
+        let decisionImpact =
+            "The simulated decision produces a similar business condition.";
+
+        if (
+            simulatedRiskScore >
+            currentRiskScore
+        ) {
+
+            decisionImpact =
+                "The simulated decision may increase business risk.";
+
+        }
+
+        else if (
+            simulatedRiskScore <
+            currentRiskScore
+        ) {
+
+            decisionImpact =
+                "The simulated decision may reduce business risk.";
+
+        }
+
+
+        // -------------------------------------------------
+        // Response
+        // -------------------------------------------------
+
+        res.json({
+
+            success: true,
+
+            engine:
+                "AI Business Impact Simulation Engine",
+
+            business: {
+
+                name:
+                    business.businessName,
+
+                category:
+                    business.category,
+
+                location:
+                    business.location
+
+            },
+
+            currentCondition: {
+
+                revenue:
+                    currentRevenue,
+
+                expenses:
+                    currentExpenses,
+
+                profit:
+                    currentProfit,
+
+                riskScore:
+                    currentRiskScore,
+
+                riskLevel:
+                    currentAnalysis.riskLevel ||
+                    "Not analyzed"
+
+            },
+
+            simulatedCondition: {
+
+                revenue:
+                    Number(
+                        simulatedRevenue.toFixed(2)
+                    ),
+
+                expenses:
+                    Number(
+                        simulatedExpenses.toFixed(2)
+                    ),
+
+                profit:
+                    Number(
+                        simulatedProfit.toFixed(2)
+                    ),
+
+                riskScore:
+                    simulatedRiskScore,
+
+                riskLevel:
+                    simulatedAnalysis.riskLevel ||
+                    "Not analyzed"
+
+            },
+
+            scenario: {
+
+                revenueChangePercent:
+                    revenueChange,
+
+                expenseChangePercent:
+                    expenseChange
+
+            },
+
+            impactChain:
+                impactChain,
+
+            decisionImpact:
+                decisionImpact,
+
+            recommendation:
+                simulatedRiskScore > currentRiskScore
+                    ? "Consider reducing expenses or improving revenue before implementing this decision."
+                    : "The simulated condition does not show an increase in overall business risk."
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "AI Business Impact Simulation Error:",
+            error
+        );
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                "Business impact simulation failed",
+
+            error:
+                error.message
+
+        });
+
+    }
+
+});
 
 module.exports = router;
