@@ -906,6 +906,75 @@
         </div>
 
     </div>
+        <!-- ==========================================
+     🤖 AI BUSINESS IMPACT SIMULATION ENGINE
+========================================== -->
+
+<div class="section">
+
+    <h2>
+        🤖 AI Business Impact Simulation Engine
+    </h2>
+
+    <p>
+        Simulate a business decision before implementing it
+        and understand its possible future impact.
+    </p>
+
+    <div class="simulation-grid">
+
+        <div class="input-group">
+
+            <label>
+                📈 Revenue Change (%)
+            </label>
+
+            <input
+                type="number"
+                id="impactRevenueChange"
+                value="0"
+                placeholder="Example: 10">
+
+        </div>
+
+
+        <div class="input-group">
+
+            <label>
+                💸 Expense Change (%)
+            </label>
+
+            <input
+                type="number"
+                id="impactExpenseChange"
+                value="0"
+                placeholder="Example: 5">
+
+        </div>
+
+    </div>
+
+
+    <button
+        class="button"
+        type="button"
+        onclick="runImpactSimulation()">
+
+        🤖 Simulate Business Impact
+
+    </button>
+
+
+    <div
+        id="impactSimulationResult"
+        class="result-box">
+
+        Enter a business decision change
+        and run the simulation.
+
+    </div>
+
+</div>
 
 
     <!-- COPILOT -->
@@ -2683,7 +2752,306 @@ async function runSimulation() {
     }
 
 }
+/* ==========================================
+   🤖 AI BUSINESS IMPACT SIMULATION ENGINE
+========================================== */
 
+async function runImpactSimulation() {
+
+    const result =
+        document.getElementById("impactSimulationResult");
+
+    if (!BUSINESS_ID) {
+
+        result.innerHTML =
+            '<span class="error">❌ Please select a business first.</span>';
+
+        return;
+    }
+
+    const revenueChange =
+        Number(
+            document.getElementById("impactRevenueChange")?.value || 0
+        );
+
+    const expenseChange =
+        Number(
+            document.getElementById("impactExpenseChange")?.value || 0
+        );
+
+    if (
+        !Number.isFinite(revenueChange) ||
+        !Number.isFinite(expenseChange)
+    ) {
+
+        result.innerHTML =
+            '<span class="error">❌ Please enter valid percentage values.</span>';
+
+        return;
+    }
+
+    result.innerHTML =
+        '<span class="loading">⏳ AI is simulating the business decision impact...</span>';
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${BUSINESS_ID}/impact-simulation`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        revenueChangePercent:
+                            revenueChange,
+
+                        expenseChangePercent:
+                            expenseChange
+
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Impact simulation failed"
+            );
+
+        }
+
+        const current =
+            data.currentCondition || {};
+
+        const simulated =
+            data.simulatedCondition || {};
+
+        const scenario =
+            data.scenario || {};
+
+        const impactChain =
+            Array.isArray(data.impactChain)
+                ? data.impactChain
+                : [];
+
+        let chainHtml = "";
+
+        impactChain.forEach(function(item) {
+
+            chainHtml += `
+
+                <div class="risk-card">
+
+                    <strong>
+                        🔹 ${escapeHtml(item.stage || "Impact Stage")}
+                    </strong>
+
+                    <br><br>
+
+                    ${escapeHtml(item.result || "")}
+
+                </div>
+
+            `;
+
+        });
+
+        result.innerHTML = `
+
+            <div class="future-risk-card">
+
+                <h3>
+                    🤖 AI Business Impact Simulation Result
+                </h3>
+
+                <strong>
+                    🏢 Business:
+                </strong>
+
+                ${escapeHtml(
+                    data.business?.name || "Business"
+                )}
+
+                <br><br>
+
+                <strong>
+                    📈 Revenue Change:
+                </strong>
+
+                ${Number(
+                    scenario.revenueChangePercent || 0
+                )}%
+
+                <br>
+
+                <strong>
+                    💸 Expense Change:
+                </strong>
+
+                ${Number(
+                    scenario.expenseChangePercent || 0
+                )}%
+
+            </div>
+
+
+            <div class="risk-card">
+
+                <h3>
+                    📊 Current Condition
+                </h3>
+
+                Revenue:
+                <strong>
+                    ${formatCurrency(current.revenue)}
+                </strong>
+
+                <br>
+
+                Expenses:
+                <strong>
+                    ${formatCurrency(current.expenses)}
+                </strong>
+
+                <br>
+
+                Profit:
+                <strong>
+                    ${formatCurrency(current.profit)}
+                </strong>
+
+                <br>
+
+                Risk Score:
+                <strong>
+                    ${Number(current.riskScore || 0)}
+                </strong>
+
+                <br>
+
+                Risk Level:
+                <strong>
+                    ${escapeHtml(
+                        current.riskLevel || "Unknown"
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="risk-card">
+
+                <h3>
+                    🔮 Simulated Future Condition
+                </h3>
+
+                Revenue:
+                <strong>
+                    ${formatCurrency(simulated.revenue)}
+                </strong>
+
+                <br>
+
+                Expenses:
+                <strong>
+                    ${formatCurrency(simulated.expenses)}
+                </strong>
+
+                <br>
+
+                Profit:
+                <strong>
+                    ${formatCurrency(simulated.profit)}
+                </strong>
+
+                <br>
+
+                Risk Score:
+                <strong>
+                    ${Number(simulated.riskScore || 0)}
+                </strong>
+
+                <br>
+
+                Risk Level:
+                <strong>
+                    ${escapeHtml(
+                        simulated.riskLevel || "Unknown"
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="risk-card">
+
+                <h3>
+                    🔗 Decision Impact Chain
+                </h3>
+
+                ${chainHtml}
+
+            </div>
+
+
+            <div class="future-risk-card">
+
+                <h3>
+                    🎯 Decision Impact
+                </h3>
+
+                ${escapeHtml(
+                    data.decisionImpact ||
+                    "Simulation completed."
+                )}
+
+                <br><br>
+
+                <strong>
+                    💡 Recommendation:
+                </strong>
+
+                <br><br>
+
+                ${escapeHtml(
+                    data.recommendation ||
+                    "Review the simulated business condition."
+                )}
+
+            </div>
+
+        `;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "AI Business Impact Simulation Error:",
+            error
+        );
+
+        result.innerHTML =
+            `<span class="error">
+                ❌ Impact Simulation Error:
+                ${escapeHtml(error.message)}
+            </span>`;
+
+    }
+
+}
 
 /* ==========================================
    AI COPILOT
