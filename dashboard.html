@@ -3457,7 +3457,8 @@ function listenCopilotAnswer() {
         return;
     }
 
-    if (!("speechSynthesis" in window)) {
+    if (!("speechSynthesis" in window) ||
+        typeof SpeechSynthesisUtterance === "undefined") {
 
         if (status) {
             status.textContent =
@@ -3471,59 +3472,83 @@ function listenCopilotAnswer() {
 
         window.speechSynthesis.cancel();
 
-        const speech =
-            new SpeechSynthesisUtterance(text);
+        const speakNow = function() {
 
-        speech.lang = "en-IN";
-        speech.rate = 0.9;
-        speech.pitch = 1;
-        speech.volume = 1;
+            const speech =
+                new SpeechSynthesisUtterance(text);
+
+            speech.lang = "en-IN";
+            speech.rate = 0.9;
+            speech.pitch = 1;
+            speech.volume = 1;
+
+            const voices =
+                window.speechSynthesis.getVoices();
+
+            const indianVoice =
+                voices.find(function(voice) {
+                    return voice.lang &&
+                        voice.lang.toLowerCase() === "en-in";
+                });
+
+            if (indianVoice) {
+                speech.voice = indianVoice;
+            }
+
+            speech.onstart = function() {
+
+                if (status) {
+                    status.textContent =
+                        "🔊 AI is speaking...";
+                }
+
+            };
+
+            speech.onend = function() {
+
+                if (status) {
+                    status.textContent =
+                        "✅ Voice reply completed.";
+                }
+
+            };
+
+            speech.onerror = function(error) {
+
+                console.error(
+                    "Speech Error:",
+                    error
+                );
+
+                if (status) {
+                    status.textContent =
+                        "❌ Voice output failed. Please try again.";
+                }
+
+            };
+
+            window.speechSynthesis.speak(speech);
+        };
 
         const voices =
             window.speechSynthesis.getVoices();
 
-        const indianVoice =
-            voices.find(function(voice) {
-                return voice.lang === "en-IN";
-            });
+        if (voices.length > 0) {
 
-        if (indianVoice) {
-            speech.voice = indianVoice;
+            speakNow();
+
+        } else {
+
+            window.speechSynthesis.onvoiceschanged =
+                function() {
+
+                    window.speechSynthesis.onvoiceschanged = null;
+
+                    speakNow();
+
+                };
+
         }
-
-        speech.onstart = function() {
-
-            if (status) {
-                status.textContent =
-                    "🔊 AI is speaking...";
-            }
-
-        };
-
-        speech.onend = function() {
-
-            if (status) {
-                status.textContent =
-                    "✅ Voice reply completed.";
-            }
-
-        };
-
-        speech.onerror = function(error) {
-
-            console.error(
-                "Speech Error:",
-                error
-            );
-
-            if (status) {
-                status.textContent =
-                    "❌ Voice output failed. Please try again.";
-            }
-
-        };
-
-        window.speechSynthesis.speak(speech);
 
     }
     catch (error) {
