@@ -523,8 +523,24 @@
                     type="number"
                     min="0"
                     placeholder="💸 Monthly Expenses">
+                <!-- 6 -->
 
-            </div>
+               <input
+                   id="newTodaysSales"
+                   type="number"
+                   min="0"
+                   placeholder="🛒 Today's Sales">
+
+
+             <!-- 7 -->
+
+            <input
+               id="newCustomerCount"
+               type="number"
+               min="0"
+               placeholder="👥 Customer Count">
+
+    </div>
 
 
             <button
@@ -639,76 +655,114 @@
 
 <!-- MAIN CARDS -->
 
-    <div class="cards">
+<div class="cards">
 
-        <div class="card">
+    <div class="card">
 
-            <div class="card-title">
-                Overall Risk Score
-            </div>
-
-            <div
-                class="card-value"
-                id="riskScore">
-
-                0
-
-            </div>
-
+        <div class="card-title">
+            Overall Risk Score
         </div>
 
+        <div
+            class="card-value"
+            id="riskScore">
 
-        <div class="card">
-
-            <div class="card-title">
-                Risk Level
-            </div>
-
-            <div id="riskLevel">
-
-                <span class="status low">
-                    Not Analyzed
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="card-title">
-                Monthly Revenue
-            </div>
-
-            <div
-                class="card-value"
-                id="revenue">
-
-                ₹0
-
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="card-title">
-                Monthly Expenses
-            </div>
-
-            <div
-                class="card-value"
-                id="expenses">
-
-                ₹0
-
-            </div>
+            0
 
         </div>
 
     </div>
+
+
+    <div class="card">
+
+        <div class="card-title">
+            Risk Level
+        </div>
+
+        <div id="riskLevel">
+
+            <span class="status low">
+                Not Analyzed
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-title">
+            Monthly Revenue
+        </div>
+
+        <div
+            class="card-value"
+            id="revenue">
+
+            ₹0
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-title">
+            Monthly Expenses
+        </div>
+
+        <div
+            class="card-value"
+            id="expenses">
+
+            ₹0
+
+        </div>
+
+    </div>
+
+
+    <!-- TODAY'S SALES -->
+
+    <div class="card">
+
+        <div class="card-title">
+            Today's Sales
+        </div>
+
+        <div
+            class="card-value"
+            id="todaysSales">
+
+            ₹0
+
+        </div>
+
+    </div>
+
+
+    <!-- CUSTOMER COUNT -->
+
+    <div class="card">
+
+        <div class="card-title">
+            Customers
+        </div>
+
+        <div
+            class="card-value"
+            id="customerCount">
+
+            0
+
+        </div>
+
+    </div>
+
+</div>
 
 <!-- AI PREDICTION -->
 
@@ -757,7 +811,27 @@
         </div>
 
     </div>
+    <!-- RISK ANALYSIS HISTORY -->
 
+<div class="section">
+
+    <h2>
+        📊 Risk Analysis History
+    </h2>
+
+    <p>
+        Previous AI risk analysis results for this business.
+    </p>
+
+    <div
+        id="riskHistory"
+        class="result-box">
+
+        No risk analysis history available.
+
+    </div>
+
+</div>
 <!-- CURRENT BUSINESS PROBLEMS -->
 
     <div class="section">
@@ -1495,6 +1569,34 @@ async function analyzeRisk() {
         ).textContent =
             business.location ||
             "Location not available";
+                /* TODAY'S SALES */
+
+        const todaysSales =
+            document.getElementById("todaysSales");
+
+        if (todaysSales) {
+
+            todaysSales.textContent =
+                formatCurrency(
+                    business.todaysSales || 0
+                );
+
+        }
+
+
+        /* CUSTOMER COUNT */
+
+        const customerCount =
+            document.getElementById("customerCount");
+
+        if (customerCount) {
+
+            customerCount.textContent =
+                Number(
+                    business.customerCount || 0
+                );
+
+        }
 
 
         /* REVENUE */
@@ -1570,6 +1672,9 @@ async function analyzeRisk() {
         updateDetectedRisks(
             analysis.detectedRisks || []
         );
+                /* RISK ANALYSIS HISTORY */
+
+        await loadRiskHistory();
 
 
         /* RECOMMENDATIONS */
@@ -4399,6 +4504,38 @@ async function loadBusiness() {
             formatCurrency(
                 item.monthlyExpenses
             );
+                // Today's Sales
+
+        const todaysSales =
+            document.getElementById(
+                "todaysSales"
+            );
+
+        if (todaysSales) {
+
+            todaysSales.textContent =
+                formatCurrency(
+                    item.todaysSales || 0
+                );
+
+        }
+
+
+        // Customer Count
+
+        const customerCount =
+            document.getElementById(
+                "customerCount"
+            );
+
+        if (customerCount) {
+
+            customerCount.textContent =
+                Number(
+                    item.customerCount || 0
+                );
+
+        }
 
 
         const simRevenue =
@@ -5016,7 +5153,15 @@ function resetRiskDisplays() {
             "Click the button to generate AI recommendations.",
 
         agenticReportResult:
-            "Click the button to generate the AI business report."
+            "Click the button to generate the AI business report.", 
+        riskHistory:
+    "⏳ Loading risk analysis history...",
+
+todaysSales:
+    "₹0",
+
+customerCount:
+    "0"
 
     };
 
@@ -5036,6 +5181,130 @@ function resetRiskDisplays() {
         }
 
     });
+
+}  
+    async function loadRiskHistory() {
+
+    try {
+
+        if (!BUSINESS_ID) {
+            return;
+        }
+
+        const response =
+            await fetch(
+                `${API_URL}/${BUSINESS_ID}/risk-history`
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.message ||
+                "Failed to load risk history"
+            );
+        }
+
+        const history =
+            data.history || [];
+
+        const container =
+            document.getElementById(
+                "riskHistory"
+            );
+
+        if (!container) {
+            return;
+        }
+
+        if (history.length === 0) {
+
+            container.innerHTML =
+                "No risk analysis history available.";
+
+            return;
+        }
+
+        container.innerHTML =
+            history
+                .slice()
+                .reverse()
+                .map(function(item) {
+
+                    return `
+                        <div style="
+                            padding: 12px;
+                            margin-bottom: 10px;
+                            border-bottom: 1px solid #ddd;
+                        ">
+
+                            <strong>
+                                Risk Score:
+                            </strong>
+                            ${Number(item.riskScore || 0)}
+
+                            <br>
+
+                            <strong>
+                                Risk Level:
+                            </strong>
+                            ${escapeHtml(
+                                item.riskLevel || "Unknown"
+                            )}
+
+                            <br>
+
+                            <strong>
+                                Future Risk:
+                            </strong>
+                            ${Number(
+                                item.futureRiskScore || 0
+                            )}
+
+                            <br>
+
+                            <strong>
+                                Analyzed At:
+                            </strong>
+                            ${item.analyzedAt
+                                ? new Date(
+                                    item.analyzedAt
+                                ).toLocaleString()
+                                : "Unknown"}
+
+                        </div>
+                    `;
+
+                })
+                .join("");
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Risk History Error:",
+            error
+        );
+
+        const container =
+            document.getElementById(
+                "riskHistory"
+            );
+
+        if (container) {
+
+            container.innerHTML =
+                `<span class="error">
+                    ❌ ${escapeHtml(
+                        error.message
+                    )}
+                </span>`;
+
+        }
+
+    }
 
 }
 
@@ -5105,7 +5374,20 @@ async function addNewBusiness() {
                 "newExpenses"
             )?.value || 0
         );
+    const todaysSales =
+       Number(
+        document.getElementById(
+            "newTodaysSales"
+        )?.value || 0
+    );
 
+
+    const customerCount =
+       Number(
+          document.getElementById(
+            "newCustomerCount"
+        )?.value || 0
+    );
 
     const message =
         document.getElementById(
@@ -5162,7 +5444,13 @@ async function addNewBusiness() {
             expenses,
 
         monthlyProfit:
-            revenue - expenses
+    revenue - expenses,
+
+todaysSales:
+    todaysSales,
+
+customerCount:
+    customerCount
 
     };
 
@@ -5294,31 +5582,34 @@ async function addNewBusiness() {
 
 function clearNewBusinessForm() {
 
-    [
+   [
+    "newBusinessName",
 
-        "newBusinessName",
+    "newBusinessCategory",
 
-        "newBusinessCategory",
+    "newBusinessLocation",
 
-        "newBusinessLocation",
+    "newRevenue",
 
-        "newRevenue",
+    "newExpenses",
 
-        "newExpenses"
+    "newTodaysSales",
 
-    ].forEach(function(id) {
+    "newCustomerCount"
 
-        const element =
-            document.getElementById(id);
+].forEach(function(id) {
 
-        if (element) {
+    const element =
+        document.getElementById(id);
 
-            element.value =
-                "";
+    if (element) {
 
-        }
+        element.value =
+            "";
 
-    });
+    }
+
+});
 
 }
 
