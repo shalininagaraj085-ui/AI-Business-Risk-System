@@ -1051,6 +1051,14 @@ business.aiPrediction =
 
 business.lastRiskAnalysis =
     new Date();
+        business.riskAnalysisHistory.push({
+    riskScore: business.overallRiskScore,
+    riskLevel: business.riskLevel,
+    futureRiskScore: business.futureRiskScore,
+    futureRiskLevel: business.futureRiskLevel,
+    aiPrediction: business.aiPrediction,
+    analyzedAt: new Date()
+});
 
 
         await business.save();
@@ -2615,6 +2623,75 @@ router.post("/:id/impact-simulation", async (req, res) => {
 
     }
 
+});
+// ==========================================
+// ADVANCED BUSINESS DATA
+// UPDATE TODAY'S SALES & CUSTOMER COUNT
+// ==========================================
+router.put("/:id/advanced-data", async (req, res) => {
+    try {
+        const { todaysSales, customerCount } = req.body;
+
+        const business = await Business.findById(req.params.id);
+
+        if (!business) {
+            return res.status(404).json({
+                message: "Business not found"
+            });
+        }
+
+        if (todaysSales !== undefined) {
+            business.todaysSales = Number(todaysSales);
+        }
+
+        if (customerCount !== undefined) {
+            business.customerCount = Number(customerCount);
+        }
+
+        await business.save();
+
+        res.json({
+            message: "Advanced business data updated successfully",
+            business
+        });
+
+    } catch (error) {
+        console.error("Advanced data update error:", error);
+
+        res.status(500).json({
+            message: "Failed to update advanced business data",
+            error: error.message
+        });
+    }
+});
+
+
+// ==========================================
+// GET RISK ANALYSIS HISTORY
+// ==========================================
+router.get("/:id/risk-history", async (req, res) => {
+    try {
+        const business = await Business.findById(req.params.id);
+
+        if (!business) {
+            return res.status(404).json({
+                message: "Business not found"
+            });
+        }
+
+        res.json({
+            businessName: business.businessName,
+            history: business.riskAnalysisHistory || []
+        });
+
+    } catch (error) {
+        console.error("Risk history error:", error);
+
+        res.status(500).json({
+            message: "Failed to load risk analysis history",
+            error: error.message
+        });
+    }
 });
 
 module.exports = router;
