@@ -3433,125 +3433,112 @@ function startCopilotVoice() {
 function listenCopilotAnswer() {
 
     const answerBox =
-        document.getElementById(
-            "copilotAnswer"
-        );
+        document.getElementById("copilotAnswer");
 
     const status =
-        document.getElementById(
-            "copilotVoiceStatus"
-        );
-
+        document.getElementById("copilotVoiceStatus");
 
     if (!answerBox) {
         return;
     }
 
-
     const text =
         answerBox.innerText
-            .replace(
-                "🤖 AI Business Copilot",
-                ""
-            )
+            .replace("🤖 AI Business Copilot", "")
             .trim();
-
 
     if (!text) {
 
         if (status) {
-
             status.textContent =
                 "⚠️ No AI answer available to listen.";
-
         }
 
         return;
     }
-
 
     if (!("speechSynthesis" in window)) {
 
         if (status) {
-
             status.textContent =
                 "❌ Voice output is not supported in this browser.";
-
         }
 
         return;
     }
 
+    try {
 
-    window.speechSynthesis.cancel();
+        window.speechSynthesis.cancel();
 
+        const speech =
+            new SpeechSynthesisUtterance(text);
 
-    const speech =
-        new SpeechSynthesisUtterance(text);
+        speech.lang = "en-IN";
+        speech.rate = 0.9;
+        speech.pitch = 1;
+        speech.volume = 1;
 
+        const voices =
+            window.speechSynthesis.getVoices();
 
-    speech.lang =
-        "en-IN";
+        const indianVoice =
+            voices.find(function(voice) {
+                return voice.lang === "en-IN";
+            });
 
-    speech.rate =
-        1;
+        if (indianVoice) {
+            speech.voice = indianVoice;
+        }
 
-    speech.pitch =
-        1;
-
-    speech.volume =
-        1;
-
-
-    speech.onstart =
-        function() {
+        speech.onstart = function() {
 
             if (status) {
-
                 status.textContent =
                     "🔊 AI is speaking...";
-
             }
 
         };
 
-
-    speech.onend =
-        function() {
+        speech.onend = function() {
 
             if (status) {
-
                 status.textContent =
                     "✅ Voice reply completed.";
-
             }
 
         };
 
-
-    speech.onerror =
-        function(error) {
+        speech.onerror = function(error) {
 
             console.error(
                 "Speech Error:",
                 error
             );
 
-
             if (status) {
-
                 status.textContent =
-                    "❌ Voice output failed.";
-
+                    "❌ Voice output failed. Please try again.";
             }
 
         };
 
+        window.speechSynthesis.speak(speech);
 
-    window.speechSynthesis.speak(
-        speech
-    );
+    }
+    catch (error) {
 
+        console.error(
+            "Voice Output Error:",
+            error
+        );
+
+        if (status) {
+            status.textContent =
+                "❌ Voice output failed.";
+        }
+
+    }
 }
     /* ==========================================
    ⏹ STOP COPILOT VOICE
@@ -5681,20 +5668,18 @@ async function initializeDashboard() {
     */
 
     businessRefreshTimer =
-        setInterval(
-            async function() {
+    setInterval(
+        async function() {
 
-                if (!BUSINESS_ID) {
-                    return;
-                }
+            if (!BUSINESS_ID) {
+                return;
+            }
 
-                await loadBusiness();
+            await loadBusiness();
 
-                await analyzeRisk();
-
-            },
-            60000
-        );
+        },
+        60000
+    );
 
 }
 
