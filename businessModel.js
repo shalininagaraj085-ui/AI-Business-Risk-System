@@ -43,40 +43,91 @@ const businessSchema = new mongoose.Schema(
             default: 0
         },
 
-    // =========================
-// AI RISK DATA
-// =========================
-overallRiskScore: {
-    type: Number,
-    default: 0
-},
+        // =========================
+        // AI RISK DATA
+        // =========================
+        overallRiskScore: {
+            type: Number,
+            default: 0
+        },
 
-riskLevel: {
-    type: String,
-    enum: ["Low", "Medium", "High", "Critical"],
-    default: "Low"
-},
+        riskLevel: {
+            type: String,
+            enum: ["Low", "Medium", "High", "Critical"],
+            default: "Low"
+        },
 
-aiPrediction: {
-    type: String,
-    default: "No prediction available"
-},
+        aiPrediction: {
+            type: String,
+            default: "No prediction available"
+        },
 
-futureRiskScore: {
-    type: Number,
-    default: 0
-},
+        futureRiskScore: {
+            type: Number,
+            default: 0
+        },
 
-futureRiskLevel: {
-    type: String,
-    enum: ["Low", "Medium", "High", "Critical", "Not analyzed"],
-    default: "Not analyzed"
-},
+        futureRiskLevel: {
+            type: String,
+            enum: ["Low", "Medium", "High", "Critical", "Not analyzed"],
+            default: "Not analyzed"
+        },
 
-lastRiskAnalysis: {
-    type: Date,
-    default: null
-}
+        lastRiskAnalysis: {
+            type: Date,
+            default: null
+        },
+
+        // =========================
+        // ADVANCED BUSINESS DATA
+        // =========================
+        todaysSales: {
+            type: Number,
+            default: 0,
+            min: 0
+        },
+
+        customerCount: {
+            type: Number,
+            default: 0,
+            min: 0
+        },
+
+        // =========================
+        // RISK ANALYSIS HISTORY
+        // =========================
+        riskAnalysisHistory: [
+            {
+                riskScore: {
+                    type: Number,
+                    default: 0
+                },
+
+                riskLevel: {
+                    type: String,
+                    enum: ["Low", "Medium", "High", "Critical"]
+                },
+
+                futureRiskScore: {
+                    type: Number,
+                    default: 0
+                },
+
+                futureRiskLevel: {
+                    type: String
+                },
+
+                aiPrediction: {
+                    type: String,
+                    default: ""
+                },
+
+                analyzedAt: {
+                    type: Date,
+                    default: Date.now
+                }
+            }
+        ]
     },
     {
         timestamps: true
