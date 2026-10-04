@@ -5670,46 +5670,24 @@ async function initializeDashboard() {
 
     await loadBusiness();
 
-    if (BUSINESS_ID) {
-
-        await analyzeRisk();
-
-    }
-
-
     if (businessRefreshTimer) {
-
-        clearInterval(
-            businessRefreshTimer
-        );
-
+        clearInterval(businessRefreshTimer);
     }
-
-
-    /*
-       AUTO REFRESH
-
-       Latest MongoDB data
-       +
-       Fresh AI risk analysis
-    */
 
     businessRefreshTimer =
-    setInterval(
-        async function() {
+        setInterval(
+            async function() {
 
-            if (!BUSINESS_ID) {
-                return;
-            }
+                if (!BUSINESS_ID) {
+                    return;
+                }
 
-            await loadBusiness();
+                await loadBusiness();
 
-        },
-        60000
-    );
-
+            },
+            60000
+        );
 }
-
 
 initializeDashboard();
     </script>
