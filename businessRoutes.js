@@ -2657,9 +2657,10 @@ router.put("/:id/advanced-data", async (req, res) => {
         await business.save();
 
         res.json({
-            message: "Advanced business data updated successfully",
-            business
-        });
+    success: true,
+    message: "Advanced business data updated successfully",
+    business
+});
 
     } catch (error) {
         console.error("Advanced data update error:", error);
@@ -2687,7 +2688,7 @@ router.get("/:id/risk-history", async (req, res) => {
 
         res.json({
             businessName: business.businessName,
-            history: business.riskAnalysisHistory || []
+            history: (business.riskAnalysisHistory || []).slice(-10)
         });
 
     } catch (error) {
