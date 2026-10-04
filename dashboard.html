@@ -3429,7 +3429,6 @@ function startCopilotVoice() {
     /* ==========================================
    🔊 LISTEN TO COPILOT ANSWER
 ========================================== */
-
 function listenCopilotAnswer() {
 
     const answerBox =
@@ -3448,54 +3447,55 @@ function listenCopilotAnswer() {
             .trim();
 
     if (!text) {
-
         if (status) {
             status.textContent =
                 "⚠️ No AI answer available to listen.";
         }
-
         return;
     }
 
-    if (!("speechSynthesis" in window) ||
-        typeof SpeechSynthesisUtterance === "undefined") {
-
+    if (
+        !window.speechSynthesis ||
+        typeof window.SpeechSynthesisUtterance === "undefined"
+    ) {
         if (status) {
             status.textContent =
                 "❌ Voice output is not supported in this browser.";
         }
-
         return;
     }
 
     try {
 
-        window.speechSynthesis.cancel();
+        const synth = window.speechSynthesis;
 
-        const speakNow = function() {
+        synth.cancel();
 
-            const speech =
+        const speak = () => {
+
+            const utterance =
                 new SpeechSynthesisUtterance(text);
 
-            speech.lang = "en-IN";
-            speech.rate = 0.9;
-            speech.pitch = 1;
-            speech.volume = 1;
+            // Use a general English voice
+            utterance.lang = "en-US";
+            utterance.rate = 0.85;
+            utterance.pitch = 1;
+            utterance.volume = 1;
 
-            const voices =
-                window.speechSynthesis.getVoices();
+            const voices = synth.getVoices();
 
-            const indianVoice =
-                voices.find(function(voice) {
-                    return voice.lang &&
-                        voice.lang.toLowerCase() === "en-in";
-                });
+            // Prefer an English voice
+            const voice =
+                voices.find(v =>
+                    v.lang &&
+                    v.lang.toLowerCase().startsWith("en")
+                );
 
-            if (indianVoice) {
-                speech.voice = indianVoice;
+            if (voice) {
+                utterance.voice = voice;
             }
 
-            speech.onstart = function() {
+            utterance.onstart = () => {
 
                 if (status) {
                     status.textContent =
@@ -3504,7 +3504,7 @@ function listenCopilotAnswer() {
 
             };
 
-            speech.onend = function() {
+            utterance.onend = () => {
 
                 if (status) {
                     status.textContent =
@@ -3513,11 +3513,11 @@ function listenCopilotAnswer() {
 
             };
 
-            speech.onerror = function(error) {
+            utterance.onerror = (event) => {
 
                 console.error(
-                    "Speech Error:",
-                    error
+                    "Speech synthesis error:",
+                    event
                 );
 
                 if (status) {
@@ -3527,45 +3527,46 @@ function listenCopilotAnswer() {
 
             };
 
-            window.speechSynthesis.speak(speech);
+            // Resume first in case speech synthesis is paused
+            synth.resume();
+
+            synth.speak(utterance);
         };
 
         const voices =
-            window.speechSynthesis.getVoices();
+            synth.getVoices();
 
         if (voices.length > 0) {
 
-            speakNow();
+            speak();
 
         } else {
 
-            window.speechSynthesis.onvoiceschanged =
-                function() {
+            synth.onvoiceschanged = () => {
 
-                    window.speechSynthesis.onvoiceschanged = null;
+                synth.onvoiceschanged = null;
 
-                    speakNow();
+                speak();
 
-                };
+            };
 
         }
 
-    }
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "Voice Output Error:",
+            "Voice Error:",
             error
         );
 
         if (status) {
             status.textContent =
-                "❌ Voice output failed.";
+                "❌ Voice output failed. Please try again.";
         }
-
     }
 }
-    /* ==========================================
+
+/*==========================================
    ⏹ STOP COPILOT VOICE
 ========================================== */
 
@@ -3575,6 +3576,7 @@ function stopCopilotVoice() {
 
         try {
 
+    /* 
             copilotVoiceRecognition.stop();
 
         }
