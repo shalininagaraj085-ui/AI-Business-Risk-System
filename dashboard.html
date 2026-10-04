@@ -3575,43 +3575,23 @@ function stopCopilotVoice() {
     if (copilotVoiceRecognition) {
 
         try {
-
-    /* 
             copilotVoiceRecognition.stop();
-
-        }
-
-        catch (error) {
-
+        } catch (error) {
             console.log(error);
-
         }
 
     }
 
-
-    if (
-        "speechSynthesis" in window
-    ) {
-
+    if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel();
-
     }
-
 
     const status =
-        document.getElementById(
-            "copilotVoiceStatus"
-        );
-
+        document.getElementById("copilotVoiceStatus");
 
     if (status) {
-
-        status.textContent =
-            "⏹ Voice stopped.";
-
+        status.textContent = "⏹ Voice stopped.";
     }
-
 }
 
 /* ==========================================
