@@ -1060,6 +1060,12 @@ business.lastRiskAnalysis =
     analyzedAt: new Date()
 });
 
+// Keep only the latest 10 risk analysis records
+if (business.riskAnalysisHistory.length > 10) {
+    business.riskAnalysisHistory =
+        business.riskAnalysisHistory.slice(-10);
+}
+
 
         await business.save();
 
