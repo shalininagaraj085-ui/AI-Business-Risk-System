@@ -568,12 +568,14 @@ router.post("/", async (req, res) => {
     try {
 
         const {
-            businessName,
-            category,
-            location,
-            monthlyRevenue,
-            monthlyExpenses
-        } = req.body;
+    businessName,
+    category,
+    location,
+    monthlyRevenue,
+    monthlyExpenses,
+    todaysSales,
+    customerCount
+} = req.body;
 
 
         // ---------------------------------------------
@@ -646,10 +648,16 @@ router.post("/", async (req, res) => {
                     revenue,
 
                 monthlyExpenses:
-                    expenses,
+    expenses,
 
-                monthlyProfit:
-                    revenue - expenses
+todaysSales:
+    Number(todaysSales || 0),
+
+customerCount:
+    Number(customerCount || 0),
+
+monthlyProfit:
+    revenue - expenses
 
             });
 
