@@ -1212,14 +1212,14 @@
         <h3>🔮 Future Risk</h3>
 
         <div
-            id="futureRisk"
-            class="heatmap-value risk-low">
+    id="futureRisk"
+    class="heatmap-value risk-low">
 
-            Low
+    Low
 
-        </div>
+</div>
 
-    </div>
+</div>
 
 </div>
 
@@ -1501,10 +1501,13 @@ async function analyzeRisk() {
         }
 
         const analysis =
-            data.analysis;
+    data.analysis;
 
-        const business =
-            data.business || {};
+const business =
+    data.business || {};
+
+const latestBusiness =
+    currentBusinessData || {};
 
         /* RISK SCORE */
 
@@ -1560,31 +1563,35 @@ async function analyzeRisk() {
                 /* TODAY'S SALES */
 
         const todaysSales =
-            document.getElementById("todaysSales");
+    document.getElementById("todaysSales");
 
-        if (todaysSales) {
+if (todaysSales) {
 
-            todaysSales.textContent =
-                formatCurrency(
-                    business.todaysSales || 0
-                );
+    todaysSales.textContent =
+        formatCurrency(
+            latestBusiness.todaysSales ??
+            business.todaysSales ??
+            0
+        );
 
-        }
+}
 
 
         /* CUSTOMER COUNT */
 
         const customerCount =
-            document.getElementById("customerCount");
+    document.getElementById("customerCount");
 
-        if (customerCount) {
+if (customerCount) {
 
-            customerCount.textContent =
-                Number(
-                    business.customerCount || 0
-                );
+    customerCount.textContent =
+        Number(
+            latestBusiness.customerCount ??
+            business.customerCount ??
+            0
+        );
 
-        }
+}
 
 
         /* REVENUE */
@@ -4439,6 +4446,7 @@ async function loadBusiness() {
             result.business ||
             result.data ||
             result;
+        currentBusinessData = item;
 
 
         if (!item) {
@@ -4585,6 +4593,8 @@ async function loadBusiness() {
 let allBusinesses = [];
 
 let businessRefreshTimer = null;
+
+let currentBusinessData = {};
 
 
 async function loadBusinesses() {
